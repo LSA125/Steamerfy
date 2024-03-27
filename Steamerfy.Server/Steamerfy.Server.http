@@ -1,0 +1,6 @@
+@Steamerfy.Server_HostAddress = http://localhost:5063
+
+GET {{Steamerfy.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

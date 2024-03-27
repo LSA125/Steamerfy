@@ -1,0 +1,27 @@
+<div class="container mt-5 d-flex flex-column align-items-lg-center">
+  <!-- App Name Header -->
+  <h1 class="text-center">Steamerfy</h1>
+
+  <!-- Lobby Card -->
+  <div class="card mt-4 bg-body-primary rounded-5 w-50 ">
+    <div class="card-body">
+      <input type="text" class="form-control rounded-5 bg-light text-dark text-center fs-4 mb-2" style="height:80px;"
+             id="userId" placeholder="Username">
+
+      <!-- User ID Input -->
+      <input type="text" class="form-control rounded-5 bg-light text-dark text-center fs-4 mb-2" style="height:80px;"
+             id="steamId" placeholder="Enter Steam ID">
+
+      <!-- Create and Join Lobby Buttons -->
+      <div class="text-center mt-4 d-flex align-items-center justify-content-evenly">
+        <button class="btn btn-primary m-1 col-4" (click)="createLobby()">Create Game</button>
+        <span class="text-dark fs-4 mx-2">OR</span>
+        <div>
+          <input type="text" class="form-control rounded-5 bg-light text-dark text-center fs-5 m-1"
+                 id="gameId" placeholder="Enter Game ID">
+          <button class="btn btn-success m-1" (click)="joinLobby()">Join Game</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
