@@ -1,16 +1,16 @@
-<div class="container mt-5 d-flex flex-column align-items-lg-center">
+<div class="container mt-5 d-flex flex-column align-items-center">
   <!-- App Name Header -->
   <h1 class="text-center">Steamerfy</h1>
 
   <!-- Lobby Card -->
-  <div class="card mt-4 bg-body-primary rounded-5 w-50 ">
+  <div class="card mt-4 bg-body-primary rounded-5 w-auto">
     <div class="card-body">
       <input type="text" class="form-control rounded-5 bg-light text-dark text-center fs-4 mb-2" style="height:80px;"
-             id="userId" placeholder="Username">
+             id="userId" placeholder="Username" [(ngModel)]="username">
 
       <!-- User ID Input -->
       <input type="text" class="form-control rounded-5 bg-light text-dark text-center fs-4 mb-2" style="height:80px;"
-             id="steamId" placeholder="Enter Steam ID">
+             id="steamId" placeholder="Enter Steam ID" [(ngModel)]="steamId">
 
       <!-- Create and Join Lobby Buttons -->
       <div class="text-center mt-4 d-flex align-items-center justify-content-evenly">
@@ -18,7 +18,7 @@
         <span class="text-dark fs-4 mx-2">OR</span>
         <div>
           <input type="text" class="form-control rounded-5 bg-light text-dark text-center fs-5 m-1"
-                 id="gameId" placeholder="Enter Game ID">
+                 id="gameId" placeholder="Enter Game ID" [(ngModel)]="lobbyId">
           <button class="btn btn-success m-1" (click)="joinLobby()">Join Game</button>
         </div>
       </div>
