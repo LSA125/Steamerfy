@@ -9,7 +9,7 @@ namespace Steamerfy.Server.Factory
         public QuestionFactory() { 
             _steamHandler = new SteamHandler();
         }
-        public async Task<Question> CreateQuestion(Player[] players)
+        public async Task<Question> CreateQuestion(Player[] players, int[] askedQuestions)
         {
             Question question = await callSteamApi(players);
 
@@ -19,7 +19,7 @@ namespace Steamerfy.Server.Factory
         public async Task<Question> callSteamApi(Player[] players)
         {
             //call steam api
-            return new Question();
+            return new Question("how are you", "very nice thank you", DateTime.Now);
         }
     }
 }

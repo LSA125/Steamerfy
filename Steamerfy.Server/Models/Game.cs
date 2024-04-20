@@ -7,7 +7,7 @@
         //time created
         public DateTime CreatedAt { get; set; }
 
-        public Question currentQuestion { get; set; }
+        public Question? CurrentQuestion { get; set; }
         
     }
 }
