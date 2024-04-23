@@ -5,9 +5,9 @@ namespace Steamerfy.Server.Factory
 {
     public class QuestionFactory : IQuestionFactory
     {
-        private ISteamHandler _steamHandler;
-        public QuestionFactory() { 
-            _steamHandler = new SteamHandler();
+        private readonly ISteamHandler _steamHandler;
+        public QuestionFactory(ISteamHandler steamHandler) { 
+            _steamHandler = steamHandler;
         }
         public async Task<Question> CreateQuestion(Player[] players, int[] askedQuestions)
         {

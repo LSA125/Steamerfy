@@ -5,12 +5,9 @@
   <!-- Lobby Card -->
   <div class="card mt-4 bg-body-primary rounded-5 w-auto">
     <div class="card-body">
-      <input type="text" class="form-control rounded-5 bg-light text-dark text-center fs-4 mb-2" style="height:80px;"
-             id="userId" placeholder="Username" [(ngModel)]="username">
-
       <!-- User ID Input -->
       <input type="text" class="form-control rounded-5 bg-light text-dark text-center fs-4 mb-2" style="height:80px;"
-             id="steamId" placeholder="Enter Steam ID" [(ngModel)]="steamId">
+             id="steamId" placeholder="Enter Steam ID" ng-model="steamId">
 
       <!-- Create and Join Lobby Buttons -->
       <div class="text-center mt-4 d-flex align-items-center justify-content-evenly">
@@ -18,7 +15,7 @@
         <span class="text-dark fs-4 mx-2">OR</span>
         <div>
           <input type="text" class="form-control rounded-5 bg-light text-dark text-center fs-5 m-1"
-                 id="gameId" placeholder="Enter Game ID" [(ngModel)]="lobbyId">
+                 id="gameId" placeholder="Enter Game ID" ng-model="lobbyId">
           <button class="btn btn-success m-1" (click)="joinLobby()">Join Game</button>
         </div>
       </div>

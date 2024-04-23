@@ -4,10 +4,7 @@
     {
         public int Id { get; set; }
         public required Player[] Players { get; set; }
-        //time created
         public DateTime CreatedAt { get; set; }
-
         public Question? CurrentQuestion { get; set; }
-        
     }
 }
