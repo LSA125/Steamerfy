@@ -5,21 +5,11 @@ namespace Steamerfy.Server.Factory
 {
     public class QuestionFactory : IQuestionFactory
     {
-        private readonly ISteamHandler _steamHandler;
-        public QuestionFactory(ISteamHandler steamHandler) { 
-            _steamHandler = steamHandler;
-        }
-        public async Task<Question> CreateQuestion(Player[] players, int[] askedQuestions)
+        public  Question CreateQuestion(List<Player> players)
         {
-            Question question = await callSteamApi(players);
+            Question question = new Question("What is the capital of France?", [("https://i.kym-cdn.com/photos/images/newsfeed/002/444/001/a3e.jpg", "Paris"), ("https://i.kym-cdn.com/photos/images/newsfeed/002/444/001/a3e.jpg", "London"), ("https://i.kym-cdn.com/photos/images/newsfeed/002/444/001/a3e.jpg", "Berlin"), ("https://i.kym-cdn.com/photos/images/newsfeed/002/444/001/a3e.jpg", "Madrid")], 0);
 
             return question;
-        }
-
-        public async Task<Question> callSteamApi(Player[] players)
-        {
-            //call steam api
-            return new Question("how are you", "very nice thank you", DateTime.Now);
         }
     }
 }

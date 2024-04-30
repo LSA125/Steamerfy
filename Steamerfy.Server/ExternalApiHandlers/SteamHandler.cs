@@ -10,19 +10,32 @@ namespace Steamerfy.Server.ExternalApiHandlers
     public class SteamHandler : ISteamHandler
     {
         private readonly HttpClient _httpClient;
-        private const string SteamApiKey = "YOUR_STEAM_API_KEY"; // Replace with your Steam API key
+        private readonly string? SteamApiKey = Environment.GetEnvironmentVariable("STEAM_API_KEY"); // Replace with your Steam API key
 
         public SteamHandler(HttpClient httpClient)
         {
             _httpClient = httpClient;
+            if (SteamApiKey == null)
+            {
+                throw new Exception("STEAM_API_KEY environment variable not set");
+            }
         }
         public async Task<Player?> GetPlayer(string steamId)
         {
-            ProfileInfo profileInfo = await GetPlayerInfo(steamId);
-            GameInfo gameInfo = await GetPlayerItems(steamId);
+            ProfileInfo? profileInfo = await GetPlayerInfo(steamId);
+            if (profileInfo == null)
+            {
+                return null;
+            }
+            List<SteamItem>? gameInfo = await GetPlayerItems(steamId);
+            if (gameInfo == null)
+            {
+                return null;
+            }
+
             return new Player(profileInfo, gameInfo, 0);
         }
-        public async Task<ProfileInfo> GetPlayerInfo(string steamId)
+        public async Task<ProfileInfo?> GetPlayerInfo(string steamId)
         {
             // Construct the URL for the Steam Web API
             string url = $"http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={SteamApiKey}&steamids={steamId}";
@@ -37,7 +50,7 @@ namespace Steamerfy.Server.ExternalApiHandlers
                 var steamResponse = JsonConvert.DeserializeObject<SteamPlayerSummariesResponse>(jsonResponse);
                 if (steamResponse == null || steamResponse.Response == null || steamResponse.Response.Players == null || steamResponse.Response.Players.Length == 0)
                 {
-                    return profileinfo;
+                    return null;
                 }
 
                 // Populate the Player object
@@ -45,16 +58,15 @@ namespace Steamerfy.Server.ExternalApiHandlers
                 profileinfo.Username = steamResponse.Response.Players[0].Personaname;
                 profileinfo.ProfileUrl = steamResponse.Response.Players[0].Profileurl;
                 profileinfo.AvatarUrl = steamResponse.Response.Players[0].Avatarfull;
+                return profileinfo;
             }
-
-            return profileinfo;
+            return null;
         }
 
-        public async Task<GameInfo> GetPlayerItems(string steamId)
+        public async Task<List<SteamItem>?> GetPlayerItems(string steamId)
         {
             // Construct the URL for the Steam Web API to get the player's inventory
             string url = $"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={SteamApiKey}&steamid={steamId}&include_appinfo=1&include_played_free_games=1&format=json";
-            GameInfo gameinfo = new();
             // Send the HTTP request
             HttpResponseMessage response = await _httpClient.GetAsync(url);
 
@@ -65,11 +77,11 @@ namespace Steamerfy.Server.ExternalApiHandlers
                 var steamResponse = JsonConvert.DeserializeObject<SteamPlayerItemsResponse>(jsonResponse);
                 if (steamResponse == null || steamResponse.Result == null || steamResponse.Result.Items == null || steamResponse.Result.Items.Length == 0)
                 {
-                    return gameinfo;
+                    return null;
                 }
 
                 // Populate the SteamItem array
-                SteamItem[] items = steamResponse.Result.Items.Select(item => new SteamItem(
+                List<SteamItem> items = steamResponse.Result.Items.Select(item => new SteamItem(
                     name: item.Name ?? "Unknown",
                     imageUrl: $"http://media.steampowered.com/steamcommunity/public/images/items/730/{item.ImageUrl}.jpg",
                     hoursPlayed: item.PlaytimeForever / 60f,
@@ -77,10 +89,10 @@ namespace Steamerfy.Server.ExternalApiHandlers
                     achievementCount: 0,
                     achievementTotal: 0,
                     achievementPercentage: 0f
-                )).ToArray();
+                )).ToList();
+                return items;
             }
-
-            return gameinfo;
+            return null;
         }
     }
 

@@ -4,6 +4,6 @@ namespace Steamerfy.Server.Factory
 {
     public interface IQuestionFactory
     {
-        public  Task<Question> CreateQuestion(Player[] players, int[] askedQuestions);
+        public Question CreateQuestion(List<Player> players);
     }
 }

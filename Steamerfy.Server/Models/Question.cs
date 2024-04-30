@@ -2,15 +2,17 @@
 {
     public class Question
     {
-        public int Id { get; set; }
         public string QuestionText { get; set; }
-        public string Answer { get; set; }
+        public List<(string,string)> ImageURLAndOption { get; set; } = new();
+        public int Answer { get; set; }
         public DateTime ExpireTime { get; set; }
-        public Question(string questionText, string answer, DateTime expireTime)
+
+        public Question(string questionText, List<(string, string)> imageURLAndOption, int answer)
         {
             QuestionText = questionText;
+            ImageURLAndOption = imageURLAndOption;
             Answer = answer;
-            ExpireTime = expireTime;
+            ExpireTime = DateTime.Now.AddSeconds(30);
         }
     }
 }

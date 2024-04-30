@@ -2,11 +2,14 @@
 
 namespace Steamerfy.Server.Models
 {
-    public class Player(ProfileInfo ProfileInfo, GameInfo GameInfo, int Score)
+    public class Player(ProfileInfo ProfileInfo, List<SteamItem> steamItems, int Score)
     {
-        public int Id { get; set; }
-        public ProfileInfo ProfileInfo { get; set; } = ProfileInfo;
-        public GameInfo GameInfo { get; set; } = GameInfo;
+        public string? Username { get; set; } = ProfileInfo.Username;
+        public string? ProfileUrl { get; set; } = ProfileInfo.ProfileUrl;
+        public string? AvatarUrl { get; set; } = ProfileInfo.AvatarUrl;
+        public string? SteamId { get; set; } = ProfileInfo.SteamId;
+        public string ConnectionId { get; set; }
+        public List<SteamItem> SteamItems { get; set; } = steamItems;
         public int Score { get; set; } = Score;
     }
 }
