@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Steamerfy.Server.ExternalApiHandlers;
 using Steamerfy.Server.Factory;
+using Steamerfy.Server.Models;
 using Steamerfy.Server.Services;
 
 namespace Steamerfy.Server.HubsAndSockets
@@ -9,17 +10,28 @@ namespace Steamerfy.Server.HubsAndSockets
     {
         private readonly GameService _gameService;
         private readonly ISteamHandler _steamHandler;
-        private readonly IQuestionFactory _questionFactory;
+        private const int DELAY_IN_SECONDS = 30;
         public GameHub(GameService gameService, ISteamHandler steamHandler)
         {
             _gameService = gameService;
             _steamHandler = steamHandler;
         }
 
-        public async Task CreateLobby()
+        public async Task CreateLobby(string hostSteamID)
         {
-            var lobby = _gameService.CreateLobby();
-            await Clients.Caller.SendAsync("LobbyCreated", lobby);
+            int lobbyId = _gameService.CreateLobby(hostSteamID);
+            var host = await _steamHandler.GetPlayer(hostSteamID);
+            if (host != null)
+            {
+                host.ConnectionId = Context.ConnectionId;
+                _gameService.AddPlayer(_gameService.GetLobby(lobbyId), host);
+                await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId.ToString());
+                await Clients.Caller.SendAsync("LobbyCreated", lobbyId);
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("PlayerNotFound");
+            }
         }
 
         public async Task JoinLobby(int lobbyId, string steamId)
@@ -36,21 +48,10 @@ namespace Steamerfy.Server.HubsAndSockets
                 await Clients.Caller.SendAsync("PlayerNotFound");
                 return;
             }
-            var connectionId = Context.ConnectionId;
-            _gameService.CreatePlayer(lobby, player, connectionId);
-            await Groups.AddToGroupAsync(connectionId, lobbyId.ToString());
+            player.ConnectionId = Context.ConnectionId;
+            _gameService.AddPlayer(lobby, player);
+            await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId.ToString());
             await Clients.Group(lobbyId.ToString()).SendAsync("PlayerJoined", player);
-        }
-
-        public async Task StartGame(int lobbyId)
-        {
-            var lobby = _gameService.GetLobby(lobbyId);
-            if (lobby == null)
-            {
-                await Clients.Caller.SendAsync("LobbyNotFound");
-                return;
-            }
-            await Clients.Group(lobbyId.ToString()).SendAsync("GameStarted", lobby);
         }
 
         public async Task AnswerQuestion(int lobbyId, string playerId, int answerId)
@@ -69,11 +70,11 @@ namespace Steamerfy.Server.HubsAndSockets
                 return;
             }
 
-            _gameService.AnswerQuestion(lobby, player, answerId);
+            _gameService.AnswerQuestion(player, answerId);
             await Clients.Group(lobbyId.ToString()).SendAsync("PlayerAnswered", player.Score);
         }
 
-        public async Task NextQuestion(int lobbyId)
+        public async Task StartGameLoop(int lobbyId, string steamId)
         {
             var lobby = _gameService.GetLobby(lobbyId);
             if (lobby == null)
@@ -81,9 +82,15 @@ namespace Steamerfy.Server.HubsAndSockets
                 await Clients.Caller.SendAsync("LobbyNotFound");
                 return;
             }
-
-            _gameService.NextQuestion(lobby);
+            if(lobby.HostSteamId != steamId)
+            {
+                await Clients.Caller.SendAsync("NotHost");
+                return;
+            }
+            _gameService.GenerateQuestion(lobby);
             await Clients.Group(lobbyId.ToString()).SendAsync("QuestionStarted", lobby.CurrentQuestion);
+            await Task.Delay(DELAY_IN_SECONDS * 1000);
+            await Clients.Group(lobbyId.ToString()).SendAsync("QuestionEnded", lobby.CurrentQuestion);
         }
 
         public async Task EndGame(int lobbyId)

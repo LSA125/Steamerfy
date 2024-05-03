@@ -7,12 +7,12 @@
         public int Answer { get; set; }
         public DateTime ExpireTime { get; set; }
 
-        public Question(string questionText, List<(string, string)> imageURLAndOption, int answer)
+        public Question(string questionText, List<(string, string)> imageURLAndOption, int answer,int Delay)
         {
             QuestionText = questionText;
             ImageURLAndOption = imageURLAndOption;
             Answer = answer;
-            ExpireTime = DateTime.Now.AddSeconds(30);
+            ExpireTime = DateTime.Now.AddSeconds(Delay);
         }
     }
 }

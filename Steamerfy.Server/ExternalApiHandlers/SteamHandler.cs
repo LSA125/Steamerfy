@@ -39,7 +39,6 @@ namespace Steamerfy.Server.ExternalApiHandlers
         {
             // Construct the URL for the Steam Web API
             string url = $"http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={SteamApiKey}&steamids={steamId}";
-            ProfileInfo profileinfo = new();
             // Send the HTTP request
             HttpResponseMessage response = await _httpClient.GetAsync(url);
 
@@ -52,13 +51,19 @@ namespace Steamerfy.Server.ExternalApiHandlers
                 {
                     return null;
                 }
-
+                var Personaname = steamResponse.Response.Players[0].Personaname;
+                var Profileurl = steamResponse.Response.Players[0].Profileurl;
+                var Avatarfull = steamResponse.Response.Players[0].Avatarfull;
+                var SteamId = steamResponse.Response.Players[0].SteamId;
                 // Populate the Player object
-                profileinfo.SteamId = steamResponse.Response.Players[0].SteamId;
-                profileinfo.Username = steamResponse.Response.Players[0].Personaname;
-                profileinfo.ProfileUrl = steamResponse.Response.Players[0].Profileurl;
-                profileinfo.AvatarUrl = steamResponse.Response.Players[0].Avatarfull;
-                return profileinfo;
+                if (Personaname == null || Profileurl == null || Avatarfull == null || SteamId == null)
+                {
+                    return null;
+                }
+                return new ProfileInfo( Username: Personaname,
+                                        ProfileUrl: Profileurl,
+                                        AvatarUrl: Avatarfull,
+                                        SteamId: SteamId);
             }
             return null;
         }
