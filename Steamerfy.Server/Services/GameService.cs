@@ -6,6 +6,7 @@ namespace Steamerfy.Server.Services
     public class GameService
     {
         private readonly Dictionary<int, Lobby> _lobbies = [];
+        private readonly Dictionary<string, Lobby> _lobbiesByConnectionId = [];
         private readonly IQuestionFactory _questionFactory;
 
         public GameService(IQuestionFactory questionFactory)
@@ -33,7 +34,10 @@ namespace Steamerfy.Server.Services
         {
             return _lobbies.FirstOrDefault(l => l.Key == lobbyId).Value;
         }
-
+        public Lobby GetLobbyByConnectionId(string connectionId)
+        {
+            return _lobbiesByConnectionId.FirstOrDefault(l => l.Key == connectionId).Value;
+        }
         public List<(string,int)> GetPlayerScores(Lobby lobby)
         {
             return lobby.Players.Select(p => (p.SteamId, p.Score)).ToList();
@@ -41,7 +45,12 @@ namespace Steamerfy.Server.Services
 
         public Player AddPlayer(Lobby lobby, Player player)
         {
+            if (player.ConnectionId == null)
+            {
+                throw new ArgumentNullException(nameof(player.ConnectionId));
+            }
             lobby.Players.Add(player);
+            _lobbiesByConnectionId.Add(player.ConnectionId, lobby);
             return player;
         }
 
@@ -59,15 +68,51 @@ namespace Steamerfy.Server.Services
         {
             return lobby.CurrentQuestion;
         }
+        //returns true if some players have answered
+        public bool UpdateAndPrepareScores(Lobby lobby)
+        {
+            if(lobby.CurrentQuestion == null)
+            {
+                throw new ArgumentNullException(nameof(lobby.CurrentQuestion));
+            }
+            uint QuestionsUnanswered = 0;
+            foreach (var player in lobby.Players)
+            {
+                if (player.SelectedAnswer == -1)
+                {
+                    QuestionsUnanswered += 1;
+                }
+                else
+                if (player.SelectedAnswer == lobby.CurrentQuestion.Answer)
+                {
+                    player.Score += 1;
+                }
+                player.SelectedAnswer = -1;
+            }
+            if (QuestionsUnanswered == lobby.Players.Count)
+            {
+                return false;
+            }
+            return true;
+        }
+        public List<(string,int,int)> GetAnswerData(Lobby lobby)
+        {
+            return lobby.Players.Select(p => (p.SteamId, p.SelectedAnswer, p.Score)).ToList();
+        }
 
         public void EndGame(Lobby lobby)
         {
             _lobbies.Remove(lobby.Id);
         }
 
-        public void LeaveLobby(Lobby lobby, Player player)
+        public void RemovePlayer(Lobby lobby, Player player)
         {
+            if(player.ConnectionId == null)
+            {
+                throw new ArgumentNullException(nameof(player.ConnectionId));
+            }
             lobby.Players.Remove(player);
+            _lobbiesByConnectionId.Remove(player.ConnectionId);
         }
     }
 }

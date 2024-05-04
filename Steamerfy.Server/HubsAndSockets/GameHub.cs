@@ -10,11 +10,26 @@ namespace Steamerfy.Server.HubsAndSockets
     {
         private readonly GameService _gameService;
         private readonly ISteamHandler _steamHandler;
-        private const int DELAY_IN_SECONDS = 30;
+        private const int DELAY_IN_SECONDS = 15;
         public GameHub(GameService gameService, ISteamHandler steamHandler)
         {
             _gameService = gameService;
             _steamHandler = steamHandler;
+        }
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            var lobby = _gameService.GetLobbyByConnectionId(Context.ConnectionId);
+            if (lobby != null)
+            {
+                var player = lobby.Players.FirstOrDefault(p => p.ConnectionId == Context.ConnectionId);
+                if (player != null)
+                {
+                    _gameService.RemovePlayer(lobby, player);
+                    await Groups.RemoveFromGroupAsync(Context.ConnectionId, lobby.Id.ToString(), CancellationToken.None);
+                    await Clients.Group(lobby.Id.ToString()).SendAsync("PlayerLeft", player);
+                }
+            }
+            await base.OnDisconnectedAsync(exception);
         }
 
         public async Task CreateLobby(string hostSteamID)
@@ -71,7 +86,6 @@ namespace Steamerfy.Server.HubsAndSockets
             }
 
             _gameService.AnswerQuestion(player, answerId);
-            await Clients.Group(lobbyId.ToString()).SendAsync("PlayerAnswered", player.Score);
         }
 
         public async Task StartGameLoop(int lobbyId, string steamId)
@@ -90,7 +104,12 @@ namespace Steamerfy.Server.HubsAndSockets
             _gameService.GenerateQuestion(lobby);
             await Clients.Group(lobbyId.ToString()).SendAsync("QuestionStarted", lobby.CurrentQuestion);
             await Task.Delay(DELAY_IN_SECONDS * 1000);
-            await Clients.Group(lobbyId.ToString()).SendAsync("QuestionEnded", lobby.CurrentQuestion);
+            bool LobbyTimedOut = _gameService.UpdateAndPrepareScores(lobby);
+            if (LobbyTimedOut)
+            {
+                DeleteLobbyAndRemoveGroup(lobby);
+            }
+            await Clients.Group(lobbyId.ToString()).SendAsync("QuestionEnded", _gameService.GetAnswerData(lobby));
         }
 
         public async Task EndGame(int lobbyId)
@@ -122,9 +141,26 @@ namespace Steamerfy.Server.HubsAndSockets
                 return;
             }
 
-            _gameService.LeaveLobby(lobby, player);
+            _gameService.RemovePlayer(lobby, player);
+            if (lobby.Players.Count == 0)
+            {
+                DeleteLobbyAndRemoveGroup(lobby);
+            }
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, lobbyId.ToString(),CancellationToken.None);
             await Clients.Group(lobbyId.ToString()).SendAsync("PlayerLeft", player);
+        }
+
+        private async void DeleteLobbyAndRemoveGroup(Lobby lobby)
+        {
+            foreach(var player in lobby.Players)
+            {
+                if (player.ConnectionId != null)
+                {
+                    await Groups.RemoveFromGroupAsync(player.ConnectionId, lobby.Id.ToString(), CancellationToken.None);
+                }
+                _gameService.RemovePlayer(lobby, player);
+            }
+            _gameService.EndGame(lobby);
         }
     }
 }
