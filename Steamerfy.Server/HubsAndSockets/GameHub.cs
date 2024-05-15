@@ -2,6 +2,7 @@
 using Steamerfy.Server.ExternalApiHandlers;
 using Steamerfy.Server.Factory;
 using Steamerfy.Server.Models;
+using Steamerfy.Server.Models.PlayerDataClasses;
 using Steamerfy.Server.Services;
 
 namespace Steamerfy.Server.HubsAndSockets
@@ -66,7 +67,8 @@ namespace Steamerfy.Server.HubsAndSockets
             player.ConnectionId = Context.ConnectionId;
             _gameService.AddPlayer(lobby, player);
             await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId.ToString());
-            await Clients.Group(lobbyId.ToString()).SendAsync("PlayerJoined", player);
+            var profileInfo = new ProfileInfo(player.Username, player.ProfileUrl, player.AvatarUrl, player.SteamId);
+            await Clients.Group(lobbyId.ToString()).SendAsync("PlayerJoined", profileInfo);
         }
 
         public async Task AnswerQuestion(int lobbyId, string playerId, int answerId)
@@ -122,7 +124,7 @@ namespace Steamerfy.Server.HubsAndSockets
             }
 
             _gameService.EndGame(lobby);
-            await Clients.Group(lobbyId.ToString()).SendAsync("GameEnded", lobby);
+            await Clients.Group(lobbyId.ToString()).SendAsync("GameEnded", _gameService.GetAnswerData(lobby));
         }
 
         public async Task LeaveLobby(int lobbyId)

@@ -14,14 +14,6 @@ export interface QuestionResponse {
   question: Question;
 }
 
-export interface PlayerAnswerResponse {
-  score: number;
-}
-
-export interface NextQuestionResponse {
-  question: Question;
-}
-
 export interface GameEndedResponse {
   lobby: Lobby;
 }

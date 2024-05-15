@@ -8,6 +8,7 @@ import { LobbyComponent } from './lobby/lobby.component';
 import { CreateGameComponent } from './create-game/create-game.component';
 import { PlayerComponent } from './create-game/player/player.component';
 import { GameComponent } from './game/game.component';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,9 @@ import { GameComponent } from './game/game.component';
     BrowserModule, HttpClientModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [
+    provideAnimationsAsync()
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

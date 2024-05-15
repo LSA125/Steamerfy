@@ -1,18 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { GameService } from '../game.service';
+import { UserService } from '../user.service';
+import { Player } from '../models/GameHub/player';
 
 @Component({
   selector: 'app-lobby',
   templateUrl: './lobby.component.html',
-  styleUrl: './lobby.component.css'
+  styleUrls: ['./lobby.component.css']
 })
-export class LobbyComponent {
+export class LobbyComponent implements OnInit {
   username: string = "";
   steamId: string = "";
   lobbyId: string = "";
 
-  constructor() { }
+  constructor(private _gs: GameService, private router: Router, private snackBar: MatSnackBar, private us: UserService) { }
 
   ngOnInit(): void {
     // Retrieve username and steamId from localStorage if available
@@ -21,24 +24,27 @@ export class LobbyComponent {
   }
 
   createLobby(): void {
-    // Store username and steamId in localStorage
-    localStorage.setItem('username', this.username);
-    localStorage.setItem('steamId', this.steamId);
-
-    //post request to create a lobby
+    this._gs.createLobby(this.steamId).then((lobbyId: number) => {
+      console.log('Lobby created: ', lobbyId);
+      this.router.navigate([`/game/${lobbyId}`]);
+    }).catch((error) => {
+      console.error('Error while creating lobby: ', error);
+      this.snackBar.open('Error while creating lobby', 'Close', { duration: 3000 });
+    });
 
     console.log('Create Lobby clicked');
   }
 
   joinLobby(): void {
-    // Logic for joining a lobby
-    localStorage.setItem('username', this.username);
-    localStorage.setItem('steamId', this.steamId);
+    this._gs.joinLobby(+this.lobbyId, this.steamId).then((player: Player) => {
+      console.log('Joined lobby: ', this.lobbyId);
+      this.us.storeUserData(this.steamId);
+      this.router.navigate([`/game/${this.lobbyId}`]);
+    }).catch((error) => {
+      console.error('Error while joining lobby: ', error);
+      this.snackBar.open('Error while joining lobby', 'Close', { duration: 3000 });
+    });
 
-    //post request to join a lobby
-
-    // Navigate to the game room
-    
     console.log('Join Lobby clicked');
   }
 }

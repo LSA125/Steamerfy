@@ -1,5 +1,6 @@
 export interface Question {
-  id: number;
-  text: string;
-  options: string[];
+  questionText: string;
+  imageURLAndOption: [string, string][];
+  answer: number;
+  expireTime: Date;
 }
