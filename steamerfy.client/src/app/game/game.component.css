@@ -1,0 +1,30 @@
+.sidebar {
+  position: fixed;
+  width: 25%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  transition: transform 0.3s ease;
+}
+
+.game-animation{
+    transition: width 0.3s ease;
+}
+
+.content-expanded {
+  width: 100%; /* This should match the open width of the sidebar */
+  transition: width 0.3s ease;
+}
+
+.content-collapsed {
+  width: 75%;
+  transition: width 0.3s ease;
+}
+
+.sidebar-open {
+  transform: translateX(0);
+}
+
+.sidebar-closed {
+  transform: translateX(100%);
+}

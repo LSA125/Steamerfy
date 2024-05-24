@@ -21,6 +21,8 @@ export class GameComponent {
   public showAnswers: boolean = false;
   public AnswerData: AnswerData[] = [];
 
+  public showSidebar: boolean = true;
+
   ngOnInit() {
     this._gameService.questionStarted$.subscribe((question) => {
       console.log('Question Started: ', question);

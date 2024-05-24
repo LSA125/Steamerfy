@@ -1,22 +1,18 @@
-<div class="d-flex justify-content-center">
-  <div class="sidebar-container position-relative">
-    <div [ngClass]="{'sidebar-open': showSidebar, 'sidebar-closed': !showSidebar}" class="sidebar bg-primary-subtle border">
-      <button class="btn btn-primary toggle-btn" (click)="onToggleSidebar()">
-        <i [ngClass]="{'bi-chevron-left': !showSidebar, 'bi-chevron-right': showSidebar}"></i>
-      </button>
-      <h3 class="text-primary">Players</h3>
-      <ul class="list-group-flush m-0 p-0">
-        <li *ngFor="let player of players" class="d-flex align-items-center justify-content-between mb-2 border-1 border-top border-primary">
-          <img [src]="player.avatarUrl" alt="{{player.username}}" class="border border-black border-2" height="50" width="50">
-          <a class="text-decoration-none overflow-hidden h3 m-0 w-50 ofellipses text-nowrap" [href]="player.profileUrl">{{player.username}}</a>
-          <div class="border-dark-subtle w-25">
-            <span *ngIf="player.isHost" class="badge bg-primary ms-1">Host</span>
-            <span *ngIf="player.isUser" class="badge bg-secondary ms-1">You</span>
-          </div>
-          <h3 class="text-primary-emphasis bg-secondary rounded-5 w-25 mt-2 ofellipses">{{player.score}}</h3>
-        </li>
-      </ul>
-    </div>
-  </div>
+<div class="w-100 h-100 bg-primary-subtle border">
+  <button class="btn btn-primary toggle-btn" (click)="onToggleSidebar()">
+    <i [ngClass]="{'bi-chevron-left': !showSidebar, 'bi-chevron-right': showSidebar}"></i>
+  </button>
+  <h3 class="text-primary">Players</h3>
+  <ul class="list-group-flush m-0 p-0">
+    <li *ngFor="let player of players" class="d-flex align-items-center justify-content-between mb-2 border-1 border-top border-primary">
+      <img [src]="player.avatarUrl" alt="{{player.username}}" class="border border-black border-2" height="50" width="50">
+      <a class="text-decoration-none overflow-hidden h3 m-0 w-50 ofellipses text-nowrap" [href]="player.profileUrl">{{player.username}}</a>
+      <div class="border-dark-subtle w-25">
+        <span *ngIf="player.isHost" class="badge bg-primary ms-1">Host</span>
+        <span *ngIf="player.isUser" class="badge bg-secondary ms-1">You</span>
+      </div>
+      <h3 class="text-primary-emphasis bg-secondary rounded-5 w-25 mt-2 ofellipses">{{player.score}}</h3>
+    </li>
+  </ul>
 </div>
 

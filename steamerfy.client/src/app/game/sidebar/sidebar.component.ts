@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Player } from '../../models/GameHub/player';
 
 @Component({
@@ -8,9 +8,11 @@ import { Player } from '../../models/GameHub/player';
 })
 export class SidebarComponent {
   @Input() players: Player[] = [];
-  showSidebar: boolean = true;
+  public showSidebar: boolean = true;
+  @Output() onSidebarChange = new EventEmitter < boolean>();
 
   onToggleSidebar() {
     this.showSidebar = !this.showSidebar;
+    this.onSidebarChange.emit(this.showSidebar);
   }
 }

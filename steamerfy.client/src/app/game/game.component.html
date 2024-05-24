@@ -1,11 +1,7 @@
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-9">
-      <!-- Other game component content -->
+<div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-evenly game-animation" [ngClass]="{'content-collapsed': showSidebar, 'content-expanded': !showSidebar}">
       <h1>Game Area</h1>
+      <h1>Balls</h1>
     </div>
-    <div class="col-3">
-      <app-sidebar [players]="players"></app-sidebar>
-    </div>
-  </div>
+    <app-sidebar [players]="players" (onSidebarChange)="showSidebar=$event" [ngClass]="{'sidebar-open': showSidebar, 'sidebar-closed': !showSidebar}" class="sidebar"></app-sidebar>
 </div>
