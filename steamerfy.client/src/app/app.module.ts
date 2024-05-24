@@ -1,26 +1,26 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LobbyComponent } from './lobby/lobby.component';
-import { CreateGameComponent } from './create-game/create-game.component';
-import { PlayerComponent } from './create-game/player/player.component';
 import { GameComponent } from './game/game.component';
+import { RouterModule } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { SidebarComponent } from './game/sidebar/sidebar.component';
+import { TimerComponent } from './game/timer/timer.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LobbyComponent,
-    CreateGameComponent,
-    PlayerComponent,
-    GameComponent
+    GameComponent,
+    SidebarComponent,
+    TimerComponent
   ],
   imports: [
     BrowserModule, HttpClientModule,
-    AppRoutingModule
+    AppRoutingModule, RouterModule,
   ],
   providers: [
     provideAnimationsAsync()

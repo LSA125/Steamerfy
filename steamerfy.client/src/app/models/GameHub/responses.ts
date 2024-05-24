@@ -1,4 +1,4 @@
-import { Lobby } from './lobby';
+import { AnswerData } from './answerdata';
 import { Player } from './player';
 import { Question } from './question';
 
@@ -15,7 +15,7 @@ export interface QuestionResponse {
 }
 
 export interface GameEndedResponse {
-  lobby: Lobby;
+  answerData: AnswerData[];
 }
 
 export interface LeaveLobbyResponse {

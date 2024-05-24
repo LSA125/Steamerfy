@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GameService } from '../game.service';
-import { UserService } from '../user.service';
 import { Player } from '../models/GameHub/player';
 
 @Component({
@@ -15,7 +14,7 @@ export class LobbyComponent implements OnInit {
   steamId: string = "";
   lobbyId: string = "";
 
-  constructor(private _gs: GameService, private router: Router, private snackBar: MatSnackBar, private us: UserService) { }
+  constructor(private _gs: GameService, private router: Router, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     // Retrieve username and steamId from localStorage if available
@@ -38,7 +37,6 @@ export class LobbyComponent implements OnInit {
   joinLobby(): void {
     this._gs.joinLobby(+this.lobbyId, this.steamId).then((player: Player) => {
       console.log('Joined lobby: ', this.lobbyId);
-      this.us.storeUserData(this.steamId);
       this.router.navigate([`/game/${this.lobbyId}`]);
     }).catch((error) => {
       console.error('Error while joining lobby: ', error);
