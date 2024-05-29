@@ -1,19 +1,19 @@
 export class Player {
-  username: string;
-  profileUrl: string;
-  avatarUrl: string;
-  steamId: string;
+  Username: string;
+  ProfileUrl: string;
+  AvatarUrl: string;
+  SteamId: string;
   isHost: boolean;
   isUser: boolean;
-  score: number;
+  Score: number;
 
   constructor(username: string = "", profileUrl: string = "", avatarUrl: string = "", steamId: string = "", isHost: boolean = false, isUser: boolean = false, score: number = 0) {
-    this.username = username;
-    this.profileUrl = profileUrl;
-    this.avatarUrl = avatarUrl;
-    this.steamId = steamId;
+    this.Username = username;
+    this.ProfileUrl = profileUrl;
+    this.AvatarUrl = avatarUrl;
+    this.SteamId = steamId;
     this.isHost = isHost;
     this.isUser = isUser;
-    this.score = score;
+    this.Score = score;
   }
 }

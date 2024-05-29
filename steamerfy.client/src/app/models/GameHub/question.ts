@@ -1,13 +1,15 @@
 export class Question {
-  questionText: string;
-  imageURLAndOption: [string, string][];
-  answer: number;
-  expireTime: Date;
+  QuestionText: string;
+  QuestionURL: string;
+  ImageURLAndOption: [string, string][];
+  Answer: number;
+  ExpireTime: Date;
 
-  constructor(questionText: string = "", imageURLAndOption: [string, string][] = [], answer: number = -1, expireTime: Date = new Date(0)) {
-    this.questionText = questionText;
-    this.imageURLAndOption = imageURLAndOption;
-    this.answer = answer;
-    this.expireTime = expireTime;
+  constructor(questionText: string = "", questionURL:string = "", imageURLAndOption: [string, string][] = [], answer: number = -1, expireTime: Date = new Date(0)) {
+    this.QuestionText = questionText;
+    this.QuestionURL = questionURL;
+    this.ImageURLAndOption = imageURLAndOption;
+    this.Answer = answer;
+    this.ExpireTime = expireTime;
   }
 }

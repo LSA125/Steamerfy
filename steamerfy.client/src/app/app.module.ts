@@ -1,5 +1,6 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -9,6 +10,7 @@ import { RouterModule } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { SidebarComponent } from './game/sidebar/sidebar.component';
 import { TimerComponent } from './game/timer/timer.component';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -21,6 +23,7 @@ import { TimerComponent } from './game/timer/timer.component';
   imports: [
     BrowserModule, HttpClientModule,
     AppRoutingModule, RouterModule,
+    FormsModule, CommonModule
   ],
   providers: [
     provideAnimationsAsync()

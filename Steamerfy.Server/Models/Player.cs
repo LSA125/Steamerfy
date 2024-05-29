@@ -11,7 +11,6 @@ namespace Steamerfy.Server.Models
         public string? ConnectionId { get; set; }
         public List<SteamItem> SteamItems { get; set; } = steamItems;
         public int Score { get; set; } = Score;
-
         public int SelectedAnswer { get; set; } = -1;
     }
 }

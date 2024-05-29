@@ -63,7 +63,8 @@ namespace Steamerfy.Server.ExternalApiHandlers
                 return new ProfileInfo( Username: Personaname,
                                         ProfileUrl: Profileurl,
                                         AvatarUrl: Avatarfull,
-                                        SteamId: SteamId);
+                                        SteamId: SteamId,
+                                        IsHost: false);
             }
             return null;
         }
@@ -80,13 +81,13 @@ namespace Steamerfy.Server.ExternalApiHandlers
                 // Deserialize the JSON response
                 string jsonResponse = await response.Content.ReadAsStringAsync();
                 var steamResponse = JsonConvert.DeserializeObject<SteamPlayerItemsResponse>(jsonResponse);
-                if (steamResponse == null || steamResponse.Result == null || steamResponse.Result.Items == null || steamResponse.Result.Items.Length == 0)
+                if (steamResponse == null || steamResponse.Response == null || steamResponse.Response.Items == null || steamResponse.Response.Items.Length == 0)
                 {
                     return null;
                 }
 
                 // Populate the SteamItem array
-                List<SteamItem> items = steamResponse.Result.Items.Select(item => new SteamItem(
+                List<SteamItem> items = steamResponse.Response.Items.Select(item => new SteamItem(
                     name: item.Name ?? "Unknown",
                     imageUrl: $"http://media.steampowered.com/steamcommunity/public/images/items/730/{item.ImageUrl}.jpg",
                     hoursPlayed: item.PlaytimeForever / 60f,
@@ -130,14 +131,15 @@ namespace Steamerfy.Server.ExternalApiHandlers
 
     public class SteamPlayerItemsResponse
     {
-        [JsonProperty("result")]
-        public PlayerItemsResult? Result { get; set; }
+        [JsonProperty("response")]
+        public PlayerItemsResponseData? Response { get; set; }
     }
 
-    public class PlayerItemsResult
+    public class PlayerItemsResponseData
     {
         [JsonProperty("game_count")]
         public int GameCount { get; set; }
+
         [JsonProperty("games")]
         public SteamPlayerItem[]? Items { get; set; }
     }

@@ -1,0 +1,45 @@
+
+
+@keyframes circletimer {
+  from {
+    stroke-dashoffset: 0%;
+  }
+}
+
+.timer-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+svg {
+  position: absolute;
+  transform: rotate(-90deg);
+}
+
+.circle {
+  stroke: rgba(188, 0, 84, 1);
+  stroke-width: 14;
+  fill: transparent;
+}
+
+.circle-outer {
+  stroke: rgb(128, 128, 128);
+  stroke-width: 12;
+  fill: transparent;
+}
+
+.timer {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgba(188, 0, 84, 1);
+  font-size: 2em;
+  font-weight: 700;
+}
+
+span {
+  margin-bottom: 10px;
+}

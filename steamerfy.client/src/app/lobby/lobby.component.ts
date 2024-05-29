@@ -9,40 +9,26 @@ import { Player } from '../models/GameHub/player';
   templateUrl: './lobby.component.html',
   styleUrls: ['./lobby.component.css']
 })
-export class LobbyComponent implements OnInit {
+export class LobbyComponent {
   username: string = "";
-  steamId: string = "";
-  lobbyId: string = "";
+  public steamId: string = "";
+  public lobbyId: string = "";
 
   constructor(private _gs: GameService, private router: Router, private snackBar: MatSnackBar) { }
 
-  ngOnInit(): void {
-    // Retrieve username and steamId from localStorage if available
-    this.username = localStorage.getItem('username') || '';
-    this.steamId = localStorage.getItem('steamId') || '';
-  }
-
   createLobby(): void {
     this._gs.createLobby(this.steamId).then((lobbyId: number) => {
-      console.log('Lobby created: ', lobbyId);
-      this.router.navigate([`/game/${lobbyId}`]);
+      console.log('Lobby created: ', Number(lobbyId));
+      this.lobbyId = lobbyId.toString();
+      this.joinLobby();
     }).catch((error) => {
       console.error('Error while creating lobby: ', error);
       this.snackBar.open('Error while creating lobby', 'Close', { duration: 3000 });
     });
-
-    console.log('Create Lobby clicked');
   }
 
   joinLobby(): void {
-    this._gs.joinLobby(+this.lobbyId, this.steamId).then((player: Player) => {
-      console.log('Joined lobby: ', this.lobbyId);
-      this.router.navigate([`/game/${this.lobbyId}`]);
-    }).catch((error) => {
-      console.error('Error while joining lobby: ', error);
-      this.snackBar.open('Error while joining lobby', 'Close', { duration: 3000 });
-    });
-
-    console.log('Join Lobby clicked');
+    this._gs.userSteamId = this.steamId;
+    this.router.navigate(['/game', this.lobbyId]);
   }
 }

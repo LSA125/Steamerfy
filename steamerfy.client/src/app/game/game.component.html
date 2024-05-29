@@ -1,7 +1,38 @@
-<div class="d-flex justify-content-between">
-    <div class="d-flex justify-content-evenly game-animation" [ngClass]="{'content-collapsed': showSidebar, 'content-expanded': !showSidebar}">
-      <h1>Game Area</h1>
-      <h1>Balls</h1>
+<div class="m-0 p-0" *ngIf="question !== null">
+  <div class="d-flex justify-content-evenly game-animation flex-column mw-100" [ngClass]="{'content-collapsed': showSidebar, 'content-expanded': !showSidebar}" style="min-width:800px;">
+    <div class="d-flex flex-row justify-content-around bg-secondary-subtle m-4 rounded-4 border-4 shadow border-primary border align-items-center">
+      <app-timer [timerSize]="200"></app-timer>
+      <div class="d-flex flex-row justify-content-center align-items-center">
+        <img [src]="question.QuestionURL" height="300" width="300" class="m-2 border border-4 border-primary-subtle rounded-4" />
+        <h5 class="text-primary-emphasis">{{question.QuestionText}}</h5>
+      </div>
     </div>
-    <app-sidebar [players]="players" (onSidebarChange)="showSidebar=$event" [ngClass]="{'sidebar-open': showSidebar, 'sidebar-closed': !showSidebar}" class="sidebar"></app-sidebar>
+  </div>
+  <ul class="d-flex flex-row flex-wrap m-0 p-4" [ngClass]="{'content-collapsed': showSidebar, 'content-expanded': !showSidebar}" style="min-width:800px;">
+    <li *ngFor="let option of question.ImageURLAndOption; let i = index"
+        class="list-group-item p-2 d-flex justify-content-around rounded-5 position-relative shadow"
+        [ngClass]="{
+        'bg-secondary': !showAnswers,
+        'bg-success-subtle': showAnswers && question.Answer === i,
+        'bg-danger-subtle': showAnswers && question.Answer !== i,
+        'opacity-50': selectedAnswer !== i && selectedAnswer !== -1 && !showAnswers,
+        'border border-dark border-3': selectedAnswer === i
+      }"
+        style="width: calc(50% - 8px); margin: 4px">
+      <div *ngIf="showAnswers" class="player-answers position-absolute top-0 start-0 w-100 h-100 d-flex flex-wrap justify-content-end align-items-center z-3">
+        <div *ngFor="let player of gs.Players" [ngClass]="{'player-avatar-container': getPlayerAnswer(player) === i}">
+          <img *ngIf="getPlayerAnswer(player) === i"
+               [src]="player.AvatarUrl"
+               [ngClass]="{
+               'border-success': isPlayerAnswerCorrect(player),
+               'border-danger': !isPlayerAnswerCorrect(player)
+             }"
+               class="player-avatar border border-3 m-1" width="80" height="80">
+        </div>
+      </div>
+      <img [src]="option[0]" height="100" width="100" class="border border-primary rounded-3 border-4" [ngClass]="{'opacity-50': disableButtons && selectedAnswer !== i && !showAnswers}" />
+      <button class="btn btn-primary w-75 m-1 z-1" height="100" (click)="onAnswer(i)" [disabled]="disableButtons">{{option[1]}}</button>
+    </li>
+  </ul>
 </div>
+<app-sidebar (onSidebarChange)="showSidebar=$event" [ngClass]="{'sidebar-open': showSidebar, 'sidebar-closed': !showSidebar}" class="sidebar"></app-sidebar>

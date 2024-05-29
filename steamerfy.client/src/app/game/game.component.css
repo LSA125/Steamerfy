@@ -1,5 +1,5 @@
 .sidebar {
-  position: fixed;
+  position: absolute;
   width: 25%;
   top: 0;
   right: 0;
@@ -27,4 +27,8 @@
 
 .sidebar-closed {
   transform: translateX(100%);
+}
+
+.player-avatar {
+  opacity: 1 !important; /* Ensure the player avatars are fully opaque */
 }

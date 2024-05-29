@@ -1,6 +1,6 @@
 ﻿namespace Steamerfy.Server.Models.PlayerDataClasses
 {
-    public class ProfileInfo(string Username, string ProfileUrl, string AvatarUrl, string SteamId)
+    public class ProfileInfo(string Username, string ProfileUrl, string AvatarUrl, string SteamId, bool IsHost)
     {
         public string Username { get; set; } = Username;
         public string ProfileUrl { get; set; } = ProfileUrl;
