@@ -63,8 +63,7 @@ namespace Steamerfy.Server.ExternalApiHandlers
                 return new ProfileInfo( Username: Personaname,
                                         ProfileUrl: Profileurl,
                                         AvatarUrl: Avatarfull,
-                                        SteamId: SteamId,
-                                        IsHost: false);
+                                        SteamId: SteamId);
             }
             return null;
         }
@@ -90,11 +89,8 @@ namespace Steamerfy.Server.ExternalApiHandlers
                 List<SteamItem> items = steamResponse.Response.Items.Select(item => new SteamItem(
                     name: item.Name ?? "Unknown",
                     imageUrl: $"http://media.steampowered.com/steamcommunity/public/images/items/730/{item.ImageUrl}.jpg",
-                    hoursPlayed: item.PlaytimeForever / 60f,
-                    priceCents: 0,
-                    achievementCount: 0,
-                    achievementTotal: 0,
-                    achievementPercentage: 0f
+                    hoursPlayed: item.PlaytimeForever / 60,
+                    TimeLastPlayed: (uint)item.RtimeLastPlayed
                 )).ToList();
                 return items;
             }
@@ -154,5 +150,8 @@ namespace Steamerfy.Server.ExternalApiHandlers
 
         [JsonProperty("playtime_forever")]
         public int PlaytimeForever { get; set; }
+
+        [JsonProperty("rtime_last_played")]
+        public int RtimeLastPlayed { get; set; }
     }
 }

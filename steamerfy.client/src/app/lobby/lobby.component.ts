@@ -14,7 +14,11 @@ export class LobbyComponent {
   public steamId: string = "";
   public lobbyId: string = "";
 
-  constructor(private _gs: GameService, private router: Router, private snackBar: MatSnackBar) { }
+  constructor(private _gs: GameService, private router: Router, private snackBar: MatSnackBar) {
+    if (this._gs.connected) {
+      this._gs.leaveLobby(this._gs.lobbyId)
+    }
+  }
 
   createLobby(): void {
     this._gs.createLobby(this.steamId).then((lobbyId: number) => {

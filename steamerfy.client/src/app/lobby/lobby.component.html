@@ -3,20 +3,20 @@
   <h1 class="text-center">Steamerfy</h1>
 
   <!-- Lobby Card -->
-  <div class="card mt-4 bg-body-primary rounded-5 w-50" style="min-width: 500px;">
+  <div class="card mt-4 bg-body-primary rounded-5">
     <div class="card-body">
       <!-- User ID Input -->
       <input type="text" class="form-control rounded-5 bg-light text-dark text-center fs-4 mb-2" style="height:80px;"
              id="steamId" placeholder="Enter Steam ID" [(ngModel)]="steamId">
 
       <!-- Create and Join Lobby Buttons -->
-      <div class="text-center mt-4 d-flex align-items-center justify-content-evenly">
-        <button class="btn btn-primary m-1 col-4" (click)="createLobby()">Create Game</button>
-        <span class="text-dark fs-4 mx-2">OR</span>
+      <div class="text-center mt-4">
+        <button class="btn btn-primary m-1 w-100" (click)="createLobby()">Create Game</button>
+        <span class="text-dark fs-4 mx-2 d-block d-md-inline-block">OR</span>
         <div class="d-flex flex-column align-items-center justify-content-center">
           <input type="text" class="form-control rounded-5 bg-light text-dark text-center m-1 w-100"
                  id="gameId" placeholder="Enter Game ID" [(ngModel)]="lobbyId">
-          <button class="btn btn-success m-1 w-75" (click)="joinLobby()">Join Game</button>
+          <button class="btn btn-success m-1 w-100" (click)="joinLobby()">Join Game</button>
         </div>
       </div>
     </div>

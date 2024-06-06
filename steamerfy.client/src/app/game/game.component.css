@@ -1,23 +1,26 @@
 .sidebar {
-  position: absolute;
-  width: 25%;
+  position: fixed;
+  width: 300px; /* Adjust as needed */
   top: 0;
   right: 0;
   bottom: 0;
   transition: transform 0.3s ease;
 }
-
-.game-animation{
-    transition: width 0.3s ease;
+.option {
+  width: calc(50% - 8px);
+  margin: 4px;
+}
+.game-animation {
+  transition: width 0.3s ease;
 }
 
 .content-expanded {
-  width: 100%; /* This should match the open width of the sidebar */
+  width: 100%;
   transition: width 0.3s ease;
 }
 
 .content-collapsed {
-  width: 75%;
+  width: 75%; /* Adjust as needed */
   transition: width 0.3s ease;
 }
 
@@ -30,5 +33,79 @@
 }
 
 .player-avatar {
-  opacity: 1 !important; /* Ensure the player avatars are fully opaque */
+  opacity: 1 !important;
+}
+
+.header-sizes-text {
+  height: auto;
+  width: 300px;
+}
+
+.header-sizes-image {
+  height: 300px;
+  width: 300px;
+}
+
+@media (max-width: 400px) {
+  .header-sizes-text {
+    height: auto;
+    min-height: 50px;
+    width: 100px;
+  }
+
+  .header-sizes-image {
+    height: 100px;
+    width: 100px;
+  }
+
+  .content-expanded, .content-collapsed {
+    width: 100%; /* Take up full width on smaller screens */
+  }
+
+  .content-collapsed {
+    width: 100%;
+  }
+}
+
+@media (max-width: 800px) {
+  .option {
+    width: calc(100% - 8px);
+    margin: 4px
+  }
+  .header-sizes-text {
+    height: auto;
+    min-height: 50px;
+    width: 150px;
+  }
+
+  .header-sizes-image {
+    height: 150px;
+    width: 150px;
+  }
+
+  .content-expanded, .content-collapsed {
+    width: 100%; /* Take up full width on smaller screens */
+  }
+
+  .content-collapsed {
+    width: 100%;
+  }
+}
+@media (max-width: 1200px) and (min-width: 801px) {
+  .header-sizes-text {
+    height: auto;
+    min-height: 50px;
+    width: 250px;
+  }
+  .header-sizes-image {
+    height: 250px;
+    width: 250px;
+  }
+  .content-expanded, .content-collapsed {
+    width: 100%; /* Take up full width on smaller screens */
+  }
+
+  .content-collapsed {
+    width: 100%;
+  }
 }

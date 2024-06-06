@@ -4,3 +4,19 @@
   color: gray !important;
   opacity: 1; /* Firefox */
 }
+.card {
+  max-width: 600px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .card {
+    width: 70%;
+  }
+}
+
+@media (min-width: 992px) {
+  .card {
+    width: 60%;
+  }
+}

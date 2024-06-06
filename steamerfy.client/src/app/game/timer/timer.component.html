@@ -1,9 +1,9 @@
 <div class="timer-container" [style.width.px]="timerSize" [style.height.px]="timerSize">
   <svg [attr.width]="timerSize" [attr.height]="timerSize">
     <circle class="circle-outer" cx="50%" cy="50%" [attr.r]="(timerSize / 2) - 12"></circle>
-    <circle class="circle" cx="50%" cy="50%" [attr.r]="(timerSize / 2) - 12"></circle>
+    <circle class="circle" cx="50%" cy="50%" [attr.r]="(timerSize / 2) - 12"  [attr.stroke-dasharray]="circumference * 1" [attr.stroke-dashoffset]="time == 0 ? circumference : circumference * (1 - ((time-1)/MaxTime)) "></circle>
   </svg>
   <div class="timer">
-    <span>{{ time }}</span>
+    <span>{{ time <= 0 ? "Done!!!" : time}}</span>
   </div>
 </div>

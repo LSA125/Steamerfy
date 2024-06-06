@@ -1,21 +1,20 @@
-<div class="w-auto h-100 bg-primary-subtle border-2 border-primary p-2" style="border-left: 5px solid;">
-  <button class="btn btn-primary toggle-btn" (click)="onToggleSidebar()">
+<div class="w-100 h-100 bg-primary-subtle border-2 border-primary p-1 sidebar" style="border-left: 5px solid;">
+  <button class="btn btn-primary toggle-btn z-5" (click)="onToggleSidebar()">
     <i [ngClass]="{'bi-chevron-left': !showSidebar, 'bi-chevron-right': showSidebar}"></i>
   </button>
   <h3 class="text-primary w-100" style="height: 50px;">Players</h3>
-  <div class="d-flex flex-column align-items-center justify-content-between overflow-x-hidden w-100" style="height: calc(100% - 50px);">
-    <ul class="list-group-flush m-0 p-0">
-      <li *ngFor="let player of gs.Players" class="d-flex align-items-center justify-content-between mb-2 border-1 border-top border-primary">
-        <img [src]="player.AvatarUrl" alt="{{player.Username}}" class="border border-black border-2" height="50" width="50">
-        <a class="text-decoration-none overflow-hidden h3 m-0 w-50 ofellipses text-nowrap" [href]="player.ProfileUrl">{{player.Username}}</a>
-        <div class="border-dark-subtle w-25">
+  <div class="d-flex flex-column align-items-center justify-content-between overflow-x-hidden w-100" style="height: calc(100% - 60px);">
+    <ul class="list-group-flush m-0 p-0 w-100">
+      <li *ngFor="let player of gs.Players" class="list-group-item d-flex align-items-center justify-content-between mb-2 border-1 border-top pt-1 border-primary">
+        <img [src]="player.AvatarUrl" alt="{{player.Username}}" class="player-avatar">
+        <a class="player-name text-decoration-none" href="{{player.ProfileUrl}}" target="_blank" rel="noopener noreferrer">{{player.Username}}</a>
+        <div class="player-tags">
           <span *ngIf="player.isHost" class="badge bg-primary ms-1">Host</span>
           <span *ngIf="player.isUser" class="badge bg-secondary ms-1">You</span>
         </div>
-        <h3 class="text-primary-emphasis bg-secondary rounded-5 w-25 mt-2 ofellipses">{{player.Score}}</h3>
+        <h3 class="player-score text-primary-emphasis bg-secondary rounded-5">{{player.Score}}</h3>
       </li>
     </ul>
-    <button *ngIf="gs.isUserHost()" class="m-2 btn-primary btn " (click)="StartNextQuestion()">Start Question</button>
+    <button *ngIf="gs.isUserHost()" class="m-2 btn-primary btn z-5" (click)="StartNextQuestion()" [disabled]="!canSkip && !canStart">{{canSkip ? "Skip" : (canStart ? "New Question" : "Wait...")}}</button>
   </div>
 </div>
-

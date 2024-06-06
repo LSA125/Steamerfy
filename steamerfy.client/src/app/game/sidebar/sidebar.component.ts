@@ -11,9 +11,11 @@ export class SidebarComponent {
   public showSidebar: boolean = true;
   @Output() onSidebarChange = new EventEmitter<boolean>();
 
-  private canStartQuestion: boolean = true;
+  public canStart: boolean = true;
+  public canSkip: boolean = false;
   constructor(public gs: GameService) {
-    this.gs.questionStarted$.subscribe(() => this.canStartQuestion = true);
+    this.gs.questionStarted$.subscribe(() => { this.canSkip = true; });
+    this.gs.questionEnded$.subscribe(() => { this.canSkip = false; });
   }
 
   onToggleSidebar() {
@@ -22,10 +24,15 @@ export class SidebarComponent {
   }
 
   StartNextQuestion() {
-    if (this.canStartQuestion) {
-      this.canStartQuestion = false;
+    if (this.canSkip) {
+      this.gs.EndQuestion();
+    } 
+    else if (this.canStart) {
+      this.canStart = false;
+      setTimeout(() => {
+        this.canStart = true;
+      }, 3000);
       this.gs.StartQuestion();
     }
   }
-
 }

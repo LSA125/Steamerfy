@@ -4,7 +4,6 @@ import { Observable, Subject, connect } from 'rxjs';
 import { Router } from '@angular/router';
 import { Player } from './models/GameHub/player';
 import { Question } from './models/GameHub/question';
-import { AnswerData } from './models/GameHub/answerdata';
 import { GameState } from './models/GameHub/GameState';
 
 @Injectable({
@@ -16,7 +15,7 @@ export class GameService {
   private newGameStateSubject: Subject<GameState> = new Subject<GameState>();
 
   private questionStartedSubject: Subject<Question> = new Subject<Question>();
-  private questionEndedSubject: Subject<AnswerData[]> = new Subject<AnswerData[]>();
+  private questionEndedSubject: Subject<void> = new Subject<void>();
 
   private playerJoinedSubject: Subject<Player> = new Subject<Player>();
   private playerLeftSubject: Subject<Player> = new Subject<Player>();
@@ -26,22 +25,14 @@ export class GameService {
   public connected$: EventEmitter<void> = new EventEmitter();
   public newGameState$: Observable<GameState> = this.newGameStateSubject.asObservable();
   public questionStarted$: Observable<Question> = this.questionStartedSubject.asObservable();
-  public questionEnded$: Observable<AnswerData[]> = this.questionEndedSubject.asObservable();
+  public questionEnded$: Observable<void> = this.questionEndedSubject.asObservable();
   public playerJoined$: Observable<Player> = this.playerJoinedSubject.asObservable();
   public playerLeft$: Observable<Player> = this.playerLeftSubject.asObservable();
   public error$: Observable<string> = this.ErrorSubject.asObservable();
 
   private _players: Player[] = [];
-  public _userSteamId: string = "";
-  public get userSteamId(): string {
-    if (this._userSteamId == "") {
-      this._userSteamId = localStorage.getItem("steamId") || "";
-    }
-    return this._userSteamId;
-  }
-  public set userSteamId(value: string) {
-    this._userSteamId = value;
-  }
+  public userSteamId: string = "";
+
   public hostSteamId: string = "";
   public lobbyId: number = 0;
 
@@ -52,6 +43,7 @@ export class GameService {
   private initializeSignalRConnection() {
     this.hubConnection = new HubConnectionBuilder()
       .withUrl("http://localhost:5063/gameHub") // Change the URL to your SignalR hub endpoint
+      .withAutomaticReconnect()
       .configureLogging(LogLevel.Information)
       .build();
 
@@ -65,6 +57,13 @@ export class GameService {
       this.router.navigate(['/']);
     });
 
+    this.hubConnection.on("HostChanged", (hostSteamId: string) => {
+      this.hostSteamId = hostSteamId;
+      this._players.forEach(player => {
+        player.isHost = player.SteamId === hostSteamId;
+      });
+    });
+
     this.hubConnection.on("QuestionStarted", (questionData: any) => {
       var question: Question = new Question(questionData.QuestionText, questionData.QuestionURL,
         questionData.ImageURLAndOption, questionData.Answer, new Date(questionData.ExpireTime));
@@ -72,18 +71,25 @@ export class GameService {
     });
 
     this.hubConnection.on("QuestionEnded", (answerData: any[]) => {
-      const parsedAnswerData: AnswerData[] = answerData.map(data => ({
-        SteamId: data[0],
-        AnswerId: parseInt(data[1], 10),
-        score: parseInt(data[2], 10)
-      }));
-      this.questionEndedSubject.next(parsedAnswerData);
+      this._players.forEach(player => {
+        const playerAnswer = answerData.find(data => data[0] === player.SteamId);
+        if (playerAnswer) {
+          console.log('Player Answer: ', playerAnswer[1], playerAnswer[2])
+          player.Score = parseInt(playerAnswer[2], 10);
+          player.SelectedAnswer = parseInt(playerAnswer[1], 10);
+        }
+      });
+
+      this.questionEndedSubject.next();
     });
 
     this.hubConnection.on("PlayerJoined", (player: Player) => {
-      player.isUser = player.SteamId === this.userSteamId;
+      console.log('isUser: ', player.SteamId, this.userSteamId)
+      player.isUser = player.SteamId == this.userSteamId;
+      player.isHost = player.SteamId == this.hostSteamId;
       player.Score = 0;
       this._players.push(player);
+
       this.playerJoinedSubject.next(player);
     });
 
@@ -96,14 +102,22 @@ export class GameService {
     });
 
     this.hubConnection.on("error", (error: string) => {
+      this.router.navigate(['/']);
       this.ErrorSubject.next(error);
     });
 
     this.hubConnection.on("LobbyJoined", (gameState: GameState) => {
-      this.userSteamId = gameState.steamId;
       this.lobbyId = gameState.LobbyId;
       this._players = gameState.Players;
       this.hostSteamId = gameState.HostSteamId;
+      var tmp: Player | undefined = this._players.find(p => p.SteamId === this.userSteamId);
+      if (tmp) {
+        tmp.isUser = true;
+      }
+      var tmp2: Player | undefined = this._players.find(p => p.SteamId === this.hostSteamId);
+      if (tmp2) {
+        tmp2.isHost = true;
+      }
       this.newGameStateSubject.next(gameState);
     });
 
@@ -167,20 +181,10 @@ export class GameService {
     }
   }
 
-  async LoadGameState(lobbyId:number) {
-    try {
-      await this.hubConnection.invoke('GetGameState', lobbyId);
-    } catch (error) {
-      console.error('Error while loading game state: ', error);
-      throw error;
-    }
+  public isUserHost(): boolean {
+    return this.hostSteamId === this.userSteamId;
   }
-
   public get Players(): Player[] {
     return this._players;
-  }
-
-  public isUserHost(): boolean {
-    return this._userSteamId === this.hostSteamId;
   }
 }

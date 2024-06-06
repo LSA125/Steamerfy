@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 interface WeatherForecast {
   date: string;
@@ -14,9 +14,10 @@ interface WeatherForecast {
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  public forecasts: WeatherForecast[] = [];
 
-  constructor(private http: HttpClient) {}
+
+  constructor(private http: HttpClient) { }
+
 
   title = 'steamerfy.client';
 }

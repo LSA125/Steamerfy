@@ -1,11 +1,3 @@
-
-
-@keyframes circletimer {
-  from {
-    stroke-dashoffset: 0%;
-  }
-}
-
 .timer-container {
   position: relative;
   display: flex;
@@ -18,10 +10,15 @@ svg {
   transform: rotate(-90deg);
 }
 
+.no-transition{
+    transition: none !important;
+}
+
 .circle {
   stroke: rgba(188, 0, 84, 1);
   stroke-width: 14;
   fill: transparent;
+  transition: stroke-dashoffset 1s linear;
 }
 
 .circle-outer {

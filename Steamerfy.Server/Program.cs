@@ -27,7 +27,7 @@ builder.Services.AddSignalR().AddJsonProtocol(options =>
 
 // Add application services.
 builder.Services.AddSingleton<ISteamHandler, SteamHandler>();
-builder.Services.AddSingleton<IQuestionFactory, QuestionFactory>();
+builder.Services.AddSingleton<IQuestionFactory, QuestionGenerator>();
 builder.Services.AddSingleton<GameService>();
 builder.Services.AddHttpClient();
 

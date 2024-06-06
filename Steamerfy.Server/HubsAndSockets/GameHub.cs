@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Steamerfy.Server.ExternalApiHandlers;
-using Steamerfy.Server.Factory;
 using Steamerfy.Server.Models;
 using Steamerfy.Server.Models.PlayerDataClasses;
 using Steamerfy.Server.Services;
@@ -11,7 +10,6 @@ namespace Steamerfy.Server.HubsAndSockets
     {
         private readonly GameService _gameService;
         private readonly ISteamHandler _steamHandler;
-        private const int DELAY_IN_SECONDS = 15;
         public GameHub(GameService gameService, ISteamHandler steamHandler)
         {
             _gameService = gameService;
@@ -67,17 +65,22 @@ namespace Steamerfy.Server.HubsAndSockets
             if (player == null)
             {
                 await Clients.Caller.SendAsync("error","PlayerNotFound");
+                if(lobby.Players.Count == 0)
+                {
+                    DeleteLobbyAndRemoveGroup(lobby);
+                }
                 return;
             }
 
             player.ConnectionId = Context.ConnectionId;
-            await Clients.Caller.SendAsync("LobbyJoined", new GameState(lobbyId, lobby.CurrentQuestion,lobby.Players,lobby.HostSteamId));
+            var profiles = lobby.Players.Select(p => new ProfileInfo(p.Username, p.ProfileUrl, p.AvatarUrl, p.SteamId)).ToList();
+            await Clients.Caller.SendAsync("LobbyJoined", new GameState(lobbyId, lobby.CurrentQuestion,profiles,_gameService.GetAnswerData(lobby),lobby.HostSteamId));
             if(lobby.Players.TrueForAll(p => p.SteamId != player.SteamId))
             {
                 _gameService.AddPlayer(lobby, player);
             }
             await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId.ToString());
-            var profileInfo = new ProfileInfo(player.Username, player.ProfileUrl, player.AvatarUrl, player.SteamId, player.SteamId == lobby.HostSteamId);
+            var profileInfo = new ProfileInfo(player.Username, player.ProfileUrl, player.AvatarUrl, player.SteamId);
             await Clients.Group(lobbyId.ToString()).SendAsync("PlayerJoined", profileInfo);
         }
 
@@ -98,6 +101,13 @@ namespace Steamerfy.Server.HubsAndSockets
             }
 
             _gameService.AnswerQuestion(player, answerId);
+            //if all players have answered
+            if (lobby.Players.All(p => p.SelectedAnswer != -1))
+            {
+                _gameService.UpdateAndPrepareScores(lobby);
+                await Clients.Group(lobbyId.ToString()).SendAsync("QuestionEnded", _gameService.GetAnswerData(lobby));
+                _gameService.ResetAnswers(lobby);
+            }
         }
 
         public async Task StartQuestion(int lobbyId, string steamId)
@@ -165,6 +175,7 @@ namespace Steamerfy.Server.HubsAndSockets
             }
 
             _gameService.RemovePlayerConnections(player);
+            lobby.Players.Remove(player);
             if (lobby.Players.Count == 0)
             {
                 DeleteLobbyAndRemoveGroup(lobby);
