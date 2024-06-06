@@ -65,7 +65,7 @@ namespace Steamerfy.Server.Factory
 
             if (!options.Any(o => o[1] == mostHoursPlayer.Username))
             {
-                options[random.Next(options.Count)] = new List<string> { mostHoursPlayer.AvatarUrl, mostHoursPlayer.Username };
+                options[random.Next(options.Count)] = [mostHoursPlayer.AvatarUrl, mostHoursPlayer.Username];
                 answerIndex = options.FindIndex(o => o[1] == mostHoursPlayer.Username);
             }
 
