@@ -13,14 +13,14 @@ namespace Steamerfy.Server.Services
         {
             _questionFactory = questionFactory;
         }
-        public int CreateLobby(string hostSteamId)
+        public int CreateLobby(string hostSteamId, uint maxScore)
         {
             if (String.IsNullOrEmpty(hostSteamId))
             {
                 throw new ArgumentNullException(nameof(hostSteamId));
             }
 
-            var lobby = new Lobby(hostSteamId);
+            var lobby = new Lobby(hostSteamId,maxScore);
             _lobbies.Add(lobby.Id, lobby);
             return lobby.Id;
         }

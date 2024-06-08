@@ -88,15 +88,23 @@ namespace Steamerfy.Server.ExternalApiHandlers
                 // Populate the SteamItem array
                 List<SteamItem> items = steamResponse.Response.Items.Select(item => new SteamItem(
                     name: item.Name ?? "Unknown",
-                    imageUrl: $"http://media.steampowered.com/steamcommunity/public/images/items/730/{item.ImageUrl}.jpg",
+                    imageUrl: $"http://media.steampowered.com/steamcommunity/public/images/apps/{item.AppId}/{item.ImageUrl}.jpg",
                     hoursPlayed: item.PlaytimeForever / 60,
-                    TimeLastPlayed: (uint)item.RtimeLastPlayed
+                    TimeLastPlayed: UnixTimeToLastTimeInDays((uint)item.RtimeLastPlayed)
                 )).ToList();
                 return items;
             }
             return null;
         }
+
+        private uint UnixTimeToLastTimeInDays(uint unixTime)
+        {
+            TimeSpan diff = DateTime.Now - DateTimeOffset.FromUnixTimeSeconds(unixTime).DateTime;
+            return (uint)Math.Round(diff.TotalDays);
+        }
     }
+
+
 
     public class SteamPlayerSummariesResponse
     {
@@ -142,6 +150,9 @@ namespace Steamerfy.Server.ExternalApiHandlers
 
     public class SteamPlayerItem
     {
+        [JsonProperty("appid")]
+        public int AppId { get; set; }
+
         [JsonProperty("name")]
         public string? Name { get; set; }
 

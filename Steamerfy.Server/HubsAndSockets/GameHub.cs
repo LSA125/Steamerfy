@@ -46,9 +46,14 @@ namespace Steamerfy.Server.HubsAndSockets
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task CreateLobby(string hostSteamID)
+        public async Task CreateLobby(string hostSteamID, uint maxScore)
         {
-            int lobbyId = _gameService.CreateLobby(hostSteamID);
+            if(maxScore <= 1 || maxScore > 14)
+            {
+                await Clients.Caller.SendAsync("error", "Invalid max score");
+                return;
+            }
+            int lobbyId = _gameService.CreateLobby(hostSteamID,maxScore);
             await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId.ToString());
             await Clients.Caller.SendAsync("LobbyCreated", lobbyId);
         }

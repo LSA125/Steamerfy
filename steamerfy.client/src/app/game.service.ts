@@ -141,10 +141,10 @@ export class GameService {
   }
 
   // returns the id of the lobby created
-  async createLobby(SteamId: string): Promise<number> {
+  async createLobby(SteamId: string, MaxRounds: number): Promise<number> {
     try {
       console.log('Creating lobby with SteamId: ', SteamId);
-      await this.hubConnection.invoke('CreateLobby', SteamId);
+      await this.hubConnection.invoke('CreateLobby', SteamId, MaxRounds);
       this.userSteamId = SteamId;
       return this.lobbyId;
     } catch (error) {

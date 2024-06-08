@@ -13,6 +13,7 @@ export class LobbyComponent {
   username: string = "";
   public steamId: string = "";
   public lobbyId: string = "";
+  public MaxRounds: number = 5;
 
   constructor(private _gs: GameService, private router: Router, private snackBar: MatSnackBar) {
     if (this._gs.connected) {
@@ -21,7 +22,7 @@ export class LobbyComponent {
   }
 
   createLobby(): void {
-    this._gs.createLobby(this.steamId).then((lobbyId: number) => {
+    this._gs.createLobby(this.steamId, this.MaxRounds).then((lobbyId: number) => {
       console.log('Lobby created: ', Number(lobbyId));
       this.lobbyId = lobbyId.toString();
       this.joinLobby();

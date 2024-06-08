@@ -11,6 +11,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { SidebarComponent } from './game/sidebar/sidebar.component';
 import { TimerComponent } from './game/timer/timer.component';
 import { CommonModule } from '@angular/common';
+import { EndScreenComponent } from './endscreen/endscreen.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { CommonModule } from '@angular/common';
     LobbyComponent,
     GameComponent,
     SidebarComponent,
-    TimerComponent
+    TimerComponent,
+    EndScreenComponent
   ],
   imports: [
     BrowserModule, HttpClientModule,
