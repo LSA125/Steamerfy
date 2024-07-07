@@ -128,6 +128,10 @@ namespace Steamerfy.Server.HubsAndSockets
                 await Clients.Caller.SendAsync("error", "You are not the host");
                 return;
             }
+            if(lobby.Players.Any(player => player.Score >= lobby.MaxScore))
+            {
+                await Clients.Group(lobbyId.ToString()).SendAsync("GameEnd");
+            }
             _gameService.GenerateQuestion(lobby);
             await Clients.Group(lobbyId.ToString()).SendAsync("QuestionStarted", lobby.CurrentQuestion);
         }

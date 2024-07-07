@@ -15,6 +15,6 @@
         <h3 class="player-score text-primary-emphasis bg-secondary rounded-5">{{player.Score}}</h3>
       </li>
     </ul>
-    <button *ngIf="gs.isUserHost()" class="m-2 btn-primary btn z-5" (click)="StartNextQuestion()" [disabled]="!canSkip && !canStart">{{canSkip ? "Skip" : (canStart ? "New Question" : "Wait...")}}</button>
+    <h5 class="text-primary">Game ID: {{gs.lobbyId}}</h5>
   </div>
 </div>

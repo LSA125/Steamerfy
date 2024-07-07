@@ -13,9 +13,9 @@ namespace Steamerfy.Server.Factory
             var questionTypes = new List<Func<List<Player>, Question>>
             {
                 GenerateMostHoursQuestion,
-                GenerateMostRecentlyPlayedQuestion,
+                //GenerateMostRecentlyPlayedQuestion,
                 GenerateMostPlayedGameQuestion,
-                GenerateMostRecentlyPlayedSingle
+                //GenerateMostRecentlyPlayedSingle
             };
 
             if (players.Count < 2)
@@ -23,7 +23,7 @@ namespace Steamerfy.Server.Factory
                 questionTypes =
                 [
                     GenerateMostPlayedGameQuestion,
-                    GenerateMostRecentlyPlayedSingle
+                    //GenerateMostRecentlyPlayedSingle
                 ];
             }
 
@@ -131,7 +131,7 @@ namespace Steamerfy.Server.Factory
             if (steamItems.Count < 4)
                 return new Question(player.Username + " does not own 4 steam games. SHAME", "", [], -1, 5);
 
-            var mostPlayedGame = steamItems.OrderBy(i => i.HoursPlayed).First();
+            var mostPlayedGame = steamItems.OrderBy(i => i.HoursPlayed).Last();
 
             var options = steamItems.Select(i => new List<string> { i.ImageUrl, i.Name }).ToList();
 
@@ -170,6 +170,7 @@ namespace Steamerfy.Server.Factory
 
             var questionText = $"Which game has {player.Username} played most recently? ({mostRecentlyPlayedGame.TimeLastPlayed/60/24} days ago)";
             var answerIndex = options.FindIndex(o => o[1] == mostRecentlyPlayedGame.Name);
+            //remove duplicate for the same hours
             return new Question(questionText, player.AvatarUrl, options, answerIndex, 10);
         }
     }

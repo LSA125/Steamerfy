@@ -51,7 +51,6 @@ app.UseRouting();
 
 // Apply CORS policy before Authorization middleware
 app.UseCors("AllowSpecificOrigin");
-
 app.MapControllers();
 app.MapHub<GameHub>("/gameHub");
 

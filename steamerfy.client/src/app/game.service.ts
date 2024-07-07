@@ -20,6 +20,7 @@ export class GameService {
   private playerJoinedSubject: Subject<Player> = new Subject<Player>();
   private playerLeftSubject: Subject<Player> = new Subject<Player>();
   private ErrorSubject: Subject<string> = new Subject<string>();
+  private GameEndedSubject: Subject<void> = new Subject<void>()
 
   public connected: boolean = false;
   public connected$: EventEmitter<void> = new EventEmitter();
@@ -28,6 +29,7 @@ export class GameService {
   public questionEnded$: Observable<void> = this.questionEndedSubject.asObservable();
   public playerJoined$: Observable<Player> = this.playerJoinedSubject.asObservable();
   public playerLeft$: Observable<Player> = this.playerLeftSubject.asObservable();
+  public GameEnded$: Observable<void> = this.GameEndedSubject.asObservable();
   public error$: Observable<string> = this.ErrorSubject.asObservable();
 
   private _players: Player[] = [];
@@ -42,7 +44,7 @@ export class GameService {
 
   private initializeSignalRConnection() {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl("http://localhost:5063/gameHub") // Change the URL to your SignalR hub endpoint
+      .withUrl("https://localhost:5063/gameHub") // Change the URL to your SignalR hub endpoint
       .withAutomaticReconnect()
       .configureLogging(LogLevel.Information)
       .build();
@@ -124,6 +126,9 @@ export class GameService {
     this.hubConnection.on("LobbyCreated", (lobbyId: number) => {
       this.lobbyId = lobbyId;
     });
+    this.hubConnection.on("GameEnd", () => {
+      this.GameEndedSubject.next();
+    })
   }
 
   async StartQuestion(): Promise<void> {

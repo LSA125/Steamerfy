@@ -38,10 +38,13 @@ export class GameComponent{
   public showSidebar: boolean = true;
   public disableButtons: boolean = false;
   public selectedAnswer: number = -1;
+  public canStart: boolean = true;
+  public canSkip: boolean = false;
 
   ngOnInit() {
     this.gs.questionStarted$.subscribe((question) => {
       console.log('Question Started: ', question);
+      this.canSkip = true; 
       this.question = question || new Question("", "https://www.pngmart.com/files/22/White-Background-PNG.png", [], -1, new Date());
       this.showAnswers = false;
       this.disableButtons = false;
@@ -51,6 +54,7 @@ export class GameComponent{
     this.gs.questionEnded$.subscribe((answerData) => {
       console.log('Question Ended: ', answerData);
       this.showAnswers = true;
+      this.canSkip = false;
     });
 
     this.gs.error$.subscribe((error) => {
@@ -73,6 +77,10 @@ export class GameComponent{
         this.selectedAnswer = -1;
       }
     });
+
+    this.gs.GameEnded$.subscribe(() => {
+      this.router.navigate(['/end']);
+    })
   }
   onAnswer(i: number) {
     console.log('Answered: ', i);
@@ -83,5 +91,18 @@ export class GameComponent{
 
   isPlayerCorrect(player: Player): boolean {
     return player.SelectedAnswer === this.question.Answer;
+  }
+
+  StartNextQuestion() {
+    if (this.canSkip) {
+      this.gs.EndQuestion();
+    }
+    else if (this.canStart) {
+      this.canStart = false;
+      setTimeout(() => {
+        this.canStart = true;
+      }, 3000);
+      this.gs.StartQuestion();
+    }
   }
 }
