@@ -10,9 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAnyOrigin",
+    options.AddPolicy("AllowSpecificOrigins",
         builder => builder
-            .AllowAnyOrigin()    // Allow any origin
+            .WithOrigins("https://victorious-stone-026d5800f.5.azurestaticapps.net")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials());
@@ -50,7 +50,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 // Apply CORS policy before Authorization middleware
-app.UseCors("AllowAnyOrigin");
+app.UseCors("AllowSpecificOrigins");
 app.MapControllers();
 app.MapHub<GameHub>("/gameHub");
 
