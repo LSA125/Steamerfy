@@ -44,7 +44,7 @@ export class GameService {
 
   private initializeSignalRConnection() {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl("https://localhost:5063/gameHub") // Change the URL to your SignalR hub endpoint
+      .withUrl("https://steamerfyserver.service.signalr.net/gameHub") // Change the URL to your SignalR hub endpoint
       .withAutomaticReconnect()
       .configureLogging(LogLevel.Information)
       .build();
