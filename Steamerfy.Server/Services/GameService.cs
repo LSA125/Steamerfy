@@ -13,14 +13,14 @@ namespace Steamerfy.Server.Services
         {
             _questionFactory = questionFactory;
         }
-        public int CreateLobby(string hostSteamId)
+        public int CreateLobby(string hostSteamId, uint maxScore)
         {
             if (String.IsNullOrEmpty(hostSteamId))
             {
                 throw new ArgumentNullException(nameof(hostSteamId));
             }
 
-            var lobby = new Lobby(hostSteamId);
+            var lobby = new Lobby(hostSteamId,maxScore);
             _lobbies.Add(lobby.Id, lobby);
             return lobby.Id;
         }
@@ -69,35 +69,27 @@ namespace Steamerfy.Server.Services
             return lobby.CurrentQuestion;
         }
         //returns true if some players have answered
-        public bool UpdateAndPrepareScores(Lobby lobby)
+        public void UpdateAndPrepareScores(Lobby lobby)
         {
-            if(lobby.CurrentQuestion == null)
-            {
-                throw new ArgumentNullException(nameof(lobby.CurrentQuestion));
-            }
-            uint QuestionsUnanswered = 0;
             foreach (var player in lobby.Players)
             {
-                if (player.SelectedAnswer == -1)
-                {
-                    QuestionsUnanswered += 1;
-                }
-                else
-                if (player.SelectedAnswer == lobby.CurrentQuestion.Answer)
+                if (player.SelectedAnswer == lobby.CurrentQuestion?.Answer)
                 {
                     player.Score += 1;
                 }
+            }
+        }
+
+        public void ResetAnswers(Lobby lobby)
+        {
+            foreach (var player in lobby.Players)
+            {
                 player.SelectedAnswer = -1;
             }
-            if (QuestionsUnanswered == lobby.Players.Count)
-            {
-                return false;
-            }
-            return true;
         }
-        public List<(string,int,int)> GetAnswerData(Lobby lobby)
+        public List<List<string>> GetAnswerData(Lobby lobby)
         {
-            return lobby.Players.Select(p => (p.SteamId, p.SelectedAnswer, p.Score)).ToList();
+            return lobby.Players.Select(p => new List<string> { p.SteamId, p.SelectedAnswer.ToString(), p.Score.ToString() }).ToList();
         }
 
         public void EndGame(Lobby lobby)
@@ -105,13 +97,12 @@ namespace Steamerfy.Server.Services
             _lobbies.Remove(lobby.Id);
         }
 
-        public void RemovePlayer(Lobby lobby, Player player)
+        public void RemovePlayerConnections(Player player)
         {
             if(player.ConnectionId == null)
             {
                 throw new ArgumentNullException(nameof(player.ConnectionId));
             }
-            lobby.Players.Remove(player);
             _lobbiesByConnectionId.Remove(player.ConnectionId);
         }
     }

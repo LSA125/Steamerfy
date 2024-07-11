@@ -1,0 +1,20 @@
+<div class="w-100 h-100 bg-primary-subtle border-2 border-primary p-1 sidebar" style="border-left: 5px solid;">
+  <button class="btn btn-primary toggle-btn z-5" (click)="onToggleSidebar()">
+    <i [ngClass]="{'bi-chevron-left': !showSidebar, 'bi-chevron-right': showSidebar}"></i>
+  </button>
+  <h3 class="text-primary w-100" style="height: 50px;">Players</h3>
+  <div class="d-flex flex-column align-items-center justify-content-between overflow-x-hidden w-100" style="height: calc(100% - 60px);">
+    <ul class="list-group-flush m-0 p-0 w-100">
+      <li *ngFor="let player of gs.Players" class="list-group-item d-flex align-items-center justify-content-between mb-2 border-1 border-top pt-1 border-primary">
+        <img [src]="player.AvatarUrl" alt="{{player.Username}}" class="player-avatar">
+        <a class="player-name text-decoration-none" href="{{player.ProfileUrl}}" target="_blank" rel="noopener noreferrer">{{player.Username}}</a>
+        <div class="player-tags">
+          <span *ngIf="player.isHost" class="badge bg-primary ms-1">Host</span>
+          <span *ngIf="player.isUser" class="badge bg-secondary ms-1">You</span>
+        </div>
+        <h3 class="player-score text-primary-emphasis bg-secondary rounded-5">{{player.Score}}</h3>
+      </li>
+    </ul>
+    <h5 class="text-primary">Game ID: {{gs.lobbyId}}</h5>
+  </div>
+</div>

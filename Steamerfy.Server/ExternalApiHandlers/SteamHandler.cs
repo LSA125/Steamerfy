@@ -80,26 +80,31 @@ namespace Steamerfy.Server.ExternalApiHandlers
                 // Deserialize the JSON response
                 string jsonResponse = await response.Content.ReadAsStringAsync();
                 var steamResponse = JsonConvert.DeserializeObject<SteamPlayerItemsResponse>(jsonResponse);
-                if (steamResponse == null || steamResponse.Result == null || steamResponse.Result.Items == null || steamResponse.Result.Items.Length == 0)
+                if (steamResponse == null || steamResponse.Response == null || steamResponse.Response.Items == null || steamResponse.Response.Items.Length == 0)
                 {
                     return null;
                 }
 
                 // Populate the SteamItem array
-                List<SteamItem> items = steamResponse.Result.Items.Select(item => new SteamItem(
+                List<SteamItem> items = steamResponse.Response.Items.Select(item => new SteamItem(
                     name: item.Name ?? "Unknown",
-                    imageUrl: $"http://media.steampowered.com/steamcommunity/public/images/items/730/{item.ImageUrl}.jpg",
-                    hoursPlayed: item.PlaytimeForever / 60f,
-                    priceCents: 0,
-                    achievementCount: 0,
-                    achievementTotal: 0,
-                    achievementPercentage: 0f
+                    imageUrl: $"http://media.steampowered.com/steamcommunity/public/images/apps/{item.AppId}/{item.ImageUrl}.jpg",
+                    hoursPlayed: item.PlaytimeForever / 60,
+                    TimeLastPlayed: UnixTimeToLastTimeInDays((uint)item.RtimeLastPlayed)
                 )).ToList();
                 return items;
             }
             return null;
         }
+
+        private uint UnixTimeToLastTimeInDays(uint unixTime)
+        {
+            TimeSpan diff = DateTime.Now - DateTimeOffset.FromUnixTimeSeconds(unixTime).DateTime;
+            return (uint)Math.Round(diff.TotalDays);
+        }
     }
+
+
 
     public class SteamPlayerSummariesResponse
     {
@@ -130,20 +135,24 @@ namespace Steamerfy.Server.ExternalApiHandlers
 
     public class SteamPlayerItemsResponse
     {
-        [JsonProperty("result")]
-        public PlayerItemsResult? Result { get; set; }
+        [JsonProperty("response")]
+        public PlayerItemsResponseData? Response { get; set; }
     }
 
-    public class PlayerItemsResult
+    public class PlayerItemsResponseData
     {
         [JsonProperty("game_count")]
         public int GameCount { get; set; }
+
         [JsonProperty("games")]
         public SteamPlayerItem[]? Items { get; set; }
     }
 
     public class SteamPlayerItem
     {
+        [JsonProperty("appid")]
+        public int AppId { get; set; }
+
         [JsonProperty("name")]
         public string? Name { get; set; }
 
@@ -152,5 +161,8 @@ namespace Steamerfy.Server.ExternalApiHandlers
 
         [JsonProperty("playtime_forever")]
         public int PlaytimeForever { get; set; }
+
+        [JsonProperty("rtime_last_played")]
+        public int RtimeLastPlayed { get; set; }
     }
 }

@@ -1,37 +1,57 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Steamerfy.Server.HubsAndSockets;
+using Steamerfy.Server.Services;
 using Steamerfy.Server.ExternalApiHandlers;
+using Steamerfy.Server.Factory;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder => builder
+            .WithOrigins("http://localhost:4200", "https://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials());
+});
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddHttpClient();
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR().AddJsonProtocol(options =>
+{
+    options.PayloadSerializerOptions.PropertyNamingPolicy = null;
+});
+
+// Add application services.
 builder.Services.AddSingleton<ISteamHandler, SteamHandler>();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<IQuestionFactory, QuestionGenerator>();
+builder.Services.AddSingleton<GameService>();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
-
-app.UseDefaultFiles();
-app.UseStaticFiles();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
 }
 
-
-app.UseWebSockets();
-
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
-app.UseAuthorization();
+app.UseRouting();
 
+// Apply CORS policy before Authorization middleware
+app.UseCors("AllowSpecificOrigin");
 app.MapControllers();
-
-app.MapFallbackToFile("/index.html");
+app.MapHub<GameHub>("/gameHub");
 
 app.Run();

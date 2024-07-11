@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Steamerfy.Server.ExternalApiHandlers;
-using Steamerfy.Server.Factory;
 using Steamerfy.Server.Models;
 using Steamerfy.Server.Models.PlayerDataClasses;
 using Steamerfy.Server.Services;
@@ -11,7 +10,6 @@ namespace Steamerfy.Server.HubsAndSockets
     {
         private readonly GameService _gameService;
         private readonly ISteamHandler _steamHandler;
-        private const int DELAY_IN_SECONDS = 15;
         public GameHub(GameService gameService, ISteamHandler steamHandler)
         {
             _gameService = gameService;
@@ -25,7 +23,22 @@ namespace Steamerfy.Server.HubsAndSockets
                 var player = lobby.Players.FirstOrDefault(p => p.ConnectionId == Context.ConnectionId);
                 if (player != null)
                 {
-                    _gameService.RemovePlayer(lobby, player);
+                    if (lobby.HostSteamId == player.SteamId)
+                    {
+                        var tmp = lobby.Players.FirstOrDefault(p => p.SteamId != player.SteamId)?.SteamId;
+                        if(tmp != null)
+                        {
+                            lobby.HostSteamId = tmp;
+                            await Clients.Group(lobby.Id.ToString()).SendAsync("HostChanged", lobby.HostSteamId);
+                        }
+                        else
+                        {
+                            DeleteLobbyAndRemoveGroup(lobby);
+                            return;
+                        }
+                    }
+                    _gameService.RemovePlayerConnections(player);
+                    lobby.Players.Remove(player);
                     await Groups.RemoveFromGroupAsync(Context.ConnectionId, lobby.Id.ToString(), CancellationToken.None);
                     await Clients.Group(lobby.Id.ToString()).SendAsync("PlayerLeft", player);
                 }
@@ -33,21 +46,16 @@ namespace Steamerfy.Server.HubsAndSockets
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task CreateLobby(string hostSteamID)
+        public async Task CreateLobby(string hostSteamID, uint maxScore)
         {
-            int lobbyId = _gameService.CreateLobby(hostSteamID);
-            var host = await _steamHandler.GetPlayer(hostSteamID);
-            if (host != null)
+            if(maxScore <= 1 || maxScore > 14)
             {
-                host.ConnectionId = Context.ConnectionId;
-                _gameService.AddPlayer(_gameService.GetLobby(lobbyId), host);
-                await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId.ToString());
-                await Clients.Caller.SendAsync("LobbyCreated", lobbyId);
+                await Clients.Caller.SendAsync("error", "Invalid max score");
+                return;
             }
-            else
-            {
-                await Clients.Caller.SendAsync("PlayerNotFound");
-            }
+            int lobbyId = _gameService.CreateLobby(hostSteamID,maxScore);
+            await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId.ToString());
+            await Clients.Caller.SendAsync("LobbyCreated", lobbyId);
         }
 
         public async Task JoinLobby(int lobbyId, string steamId)
@@ -55,17 +63,27 @@ namespace Steamerfy.Server.HubsAndSockets
             var lobby = _gameService.GetLobby(lobbyId);
             if (lobby == null)
             {
-                await Clients.Caller.SendAsync("LobbyNotFound");
+                await Clients.Caller.SendAsync("InvalidLobby");
                 return;
             }
             var player = await _steamHandler.GetPlayer(steamId);
             if (player == null)
             {
-                await Clients.Caller.SendAsync("PlayerNotFound");
+                await Clients.Caller.SendAsync("error","PlayerNotFound");
+                if(lobby.Players.Count == 0)
+                {
+                    DeleteLobbyAndRemoveGroup(lobby);
+                }
                 return;
             }
+
             player.ConnectionId = Context.ConnectionId;
-            _gameService.AddPlayer(lobby, player);
+            var profiles = lobby.Players.Select(p => new ProfileInfo(p.Username, p.ProfileUrl, p.AvatarUrl, p.SteamId)).ToList();
+            await Clients.Caller.SendAsync("LobbyJoined", new GameState(lobbyId, lobby.CurrentQuestion,profiles,_gameService.GetAnswerData(lobby),lobby.HostSteamId));
+            if(lobby.Players.TrueForAll(p => p.SteamId != player.SteamId))
+            {
+                _gameService.AddPlayer(lobby, player);
+            }
             await Groups.AddToGroupAsync(Context.ConnectionId, lobbyId.ToString());
             var profileInfo = new ProfileInfo(player.Username, player.ProfileUrl, player.AvatarUrl, player.SteamId);
             await Clients.Group(lobbyId.ToString()).SendAsync("PlayerJoined", profileInfo);
@@ -76,42 +94,64 @@ namespace Steamerfy.Server.HubsAndSockets
             var lobby = _gameService.GetLobby(lobbyId);
             if (lobby == null)
             {
-                await Clients.Caller.SendAsync("LobbyNotFound");
+                await Clients.Caller.SendAsync("error","Lobby Not Found");
                 return;
             }
 
             var player = lobby.Players.FirstOrDefault(p => p.SteamId == playerId);
             if (player == null)
             {
-                await Clients.Caller.SendAsync("PlayerNotFound");
+                await Clients.Caller.SendAsync("error", "Player Not Found");
                 return;
             }
 
             _gameService.AnswerQuestion(player, answerId);
+            //if all players have answered
+            if (lobby.Players.All(p => p.SelectedAnswer != -1))
+            {
+                _gameService.UpdateAndPrepareScores(lobby);
+                await Clients.Group(lobbyId.ToString()).SendAsync("QuestionEnded", _gameService.GetAnswerData(lobby));
+                _gameService.ResetAnswers(lobby);
+            }
         }
 
-        public async Task StartGameLoop(int lobbyId, string steamId)
+        public async Task StartQuestion(int lobbyId, string steamId)
         {
             var lobby = _gameService.GetLobby(lobbyId);
             if (lobby == null)
             {
-                await Clients.Caller.SendAsync("LobbyNotFound");
+                await Clients.Caller.SendAsync("error", "Lobby Not Found");
                 return;
             }
             if(lobby.HostSteamId != steamId)
             {
-                await Clients.Caller.SendAsync("NotHost");
+                await Clients.Caller.SendAsync("error", "You are not the host");
                 return;
+            }
+            if(lobby.Players.Any(player => player.Score >= lobby.MaxScore))
+            {
+                await Clients.Group(lobbyId.ToString()).SendAsync("GameEnd");
             }
             _gameService.GenerateQuestion(lobby);
             await Clients.Group(lobbyId.ToString()).SendAsync("QuestionStarted", lobby.CurrentQuestion);
-            await Task.Delay(DELAY_IN_SECONDS * 1000);
-            bool LobbyTimedOut = _gameService.UpdateAndPrepareScores(lobby);
-            if (LobbyTimedOut)
+        }
+
+        public async Task EndQuestion(int lobbyId, string steamId)
+        {
+            var lobby = _gameService.GetLobby(lobbyId);
+            if (lobby == null)
             {
-                DeleteLobbyAndRemoveGroup(lobby);
+                await Clients.Caller.SendAsync("error", "Lobby Not Found");
+                return;
             }
+            if (lobby.HostSteamId != steamId)
+            {
+                await Clients.Caller.SendAsync("error", "You are not the host");
+                return;
+            }
+           _gameService.UpdateAndPrepareScores(lobby);
             await Clients.Group(lobbyId.ToString()).SendAsync("QuestionEnded", _gameService.GetAnswerData(lobby));
+            _gameService.ResetAnswers(lobby);
         }
 
         public async Task EndGame(int lobbyId)
@@ -119,7 +159,7 @@ namespace Steamerfy.Server.HubsAndSockets
             var lobby = _gameService.GetLobby(lobbyId);
             if (lobby == null)
             {
-                await Clients.Caller.SendAsync("LobbyNotFound");
+                await Clients.Caller.SendAsync("error", "Lobby Not Found");
                 return;
             }
 
@@ -132,18 +172,19 @@ namespace Steamerfy.Server.HubsAndSockets
             var lobby = _gameService.GetLobby(lobbyId);
             if (lobby == null)
             {
-                await Clients.Caller.SendAsync("LobbyNotFound");
+                await Clients.Caller.SendAsync("error", "Lobby Not Found");
                 return;
             }
 
             var player = lobby.Players.FirstOrDefault(p => p.ConnectionId == Context.ConnectionId);
             if (player == null)
             {
-                await Clients.Caller.SendAsync("PlayerNotFound");
+                await Clients.Caller.SendAsync("error", "Player Not Found");
                 return;
             }
 
-            _gameService.RemovePlayer(lobby, player);
+            _gameService.RemovePlayerConnections(player);
+            lobby.Players.Remove(player);
             if (lobby.Players.Count == 0)
             {
                 DeleteLobbyAndRemoveGroup(lobby);
@@ -160,8 +201,9 @@ namespace Steamerfy.Server.HubsAndSockets
                 {
                     await Groups.RemoveFromGroupAsync(player.ConnectionId, lobby.Id.ToString(), CancellationToken.None);
                 }
-                _gameService.RemovePlayer(lobby, player);
+                _gameService.RemovePlayerConnections(player);
             }
+            lobby.Players.Clear();
             _gameService.EndGame(lobby);
         }
     }
