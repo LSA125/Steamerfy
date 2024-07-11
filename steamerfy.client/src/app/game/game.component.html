@@ -1,6 +1,9 @@
 <div class="d-flex justify-content-evenly game-animation flex-column flex-wrap" [ngClass]="{'content-collapsed': showSidebar, 'content-expanded': !showSidebar}">
   <div class="d-flex flex-row justify-content-around bg-secondary-subtle m-2 rounded-4 border-4 shadow border-primary border align-items-center flex-wrap">
-    <app-timer class="w-auto"></app-timer>
+    <div>
+      <app-timer class="w-auto"></app-timer>
+      <button *ngIf="gs.isUserHost()" class="m-2 btn-primary btn z-5" (click)="StartNextQuestion()" [disabled]="!canSkip && !canStart">{{canSkip ? "Skip" : (canStart ? "New Question" : "Wait...")}}</button>
+    </div>
     <img *ngIf="question.QuestionURL != ''" [src]="question.QuestionURL" class="m-2 border border-4 border-primary-subtle rounded-4 header-sizes-image" />
     <h5 class="text-primary-emphasis header-sizes-text" >{{question.QuestionText}}</h5>
   </div>

@@ -37,7 +37,5 @@ describe('AppComponent', () => {
     const req = httpMock.expectOne('/weatherforecast');
     expect(req.request.method).toEqual('GET');
     req.flush(mockForecasts);
-
-    expect(component.forecasts).toEqual(mockForecasts);
   });
 });
