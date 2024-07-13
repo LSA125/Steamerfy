@@ -14,24 +14,9 @@ export class GameComponent{
   public gs: GameService;
   constructor(GameService: GameService, private snackBar: MatSnackBar, private ActivatedRoute: ActivatedRoute, private router:Router) {
     this.gs = GameService
-    if (this.gs.userSteamId === "") {
+    if (this.gs.userSteamId === "" || this.gs.lobbyId === 0) {
       this.router.navigate(['/']);
     }
-    //Ok so you get the lobby id from the query params, and then if its not connected u subscribe otherswise u just join the lobby
-    this.ActivatedRoute.params.subscribe((params: Params) => {
-      if (!params['id']) { this.router.navigate(['/']); }
-      console.log('Lobby ID: ', params);
-      if (!this.gs.connected) {
-        this.gs.connected$.subscribe(() => {
-          const lobbyId = params['id'];
-          this.gs.joinLobby(Number(lobbyId), this.gs.userSteamId)
-        });
-      }
-      else {
-        const lobbyId = params['id'];
-        this.gs.joinLobby(Number(lobbyId), this.gs.userSteamId)
-      }
-    })
   }
   public question: Question = new Question("", "", [], -1, new Date());
   public showAnswers: boolean = false;
