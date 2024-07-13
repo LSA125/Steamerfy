@@ -4,9 +4,6 @@
       "type": "secrets",
       "connectionId": null
     },
-    "apis1": {
-      "type": "apis"
-    },
     "signalr1": {
       "type": "signalr",
       "connectionId": "Azure:SignalR:ConnectionString",
