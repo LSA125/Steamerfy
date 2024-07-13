@@ -73,10 +73,10 @@ namespace Steamerfy.Server.Factory
             {
                 options[random.Next(options.Count)] = [mostHoursPlayer.AvatarUrl, mostHoursPlayer.Username];
             }
-
+            var gameImage = mostHoursPlayer.SteamItems.First(i => i.Name == game).ImageUrl;
             var questionText = $"Who has the most hours on {game}?";
             var answerIndex = options.FindIndex(o => o[1] == mostHoursPlayer.Username);
-            return new Question(questionText,"", options, answerIndex,15);
+            return new Question(questionText,gameImage, options, answerIndex,15);
         }
 
         // Selects a random game that at least 2 players have played, and asks which player has played it most recently
