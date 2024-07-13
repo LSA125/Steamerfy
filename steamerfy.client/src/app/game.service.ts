@@ -149,7 +149,6 @@ export class GameService {
   // returns the id of the lobby created
   async createLobby(SteamId: string, MaxRounds: number): Promise<number> {
     try {
-      console.log('Creating lobby with SteamId: ', SteamId);
       await this.hubConnection.invoke('CreateLobby', SteamId, MaxRounds);
       this.userSteamId = SteamId;
       return this.lobbyId;
@@ -161,7 +160,6 @@ export class GameService {
 
   async joinLobby(lobbyId: number, steamId: string) {
     try {
-      console.log('Joining lobby', lobbyId,' with SteamId: ', steamId);
       await this.hubConnection.invoke('JoinLobby', lobbyId, steamId);
       this.userSteamId = steamId;
     } catch (error) {

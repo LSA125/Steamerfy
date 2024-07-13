@@ -14,9 +14,25 @@ export class GameComponent{
   public gs: GameService;
   constructor(GameService: GameService, private snackBar: MatSnackBar, private ActivatedRoute: ActivatedRoute, private router:Router) {
     this.gs = GameService
-    if (this.gs.userSteamId === "" || this.gs.lobbyId === 0) {
+    if (this.gs.userSteamId === "") {
       this.router.navigate(['/']);
     }
+    this.ActivatedRoute.params.subscribe((params: Params) => {
+      if (!params['id']) { this.router.navigate(['/']); }
+      console.log('Lobby ID: ', params);
+      if (!this.gs.connected) {
+        this.gs.connected$.subscribe(() => {
+          const lobbyId = params['id'];
+          if (this.gs.userSteamId === "" || this.gs.userSteamId === null || this.gs.userSteamId === undefined) { this.router.navigate(['/']); }
+          this.gs.joinLobby(Number(lobbyId), this.gs.userSteamId)
+        });
+      }
+      else {
+        const lobbyId = params['id'];
+        if(this.gs.userSteamId === "" || this.gs.userSteamId === null || this.gs.userSteamId === undefined) { this.router.navigate(['/']); }
+        this.gs.joinLobby(Number(lobbyId), this.gs.userSteamId)
+      }
+    })
   }
   public question: Question = new Question("", "", [], -1, new Date());
   public showAnswers: boolean = false;
