@@ -12,7 +12,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins",
         builder => builder
-            .WithOrigins("https://victorious-stone-026d5800f.5.azurestaticapps.net")
+            .WithOrigins("https://wonderful-river-02d953a0f.5.azurestaticapps.net")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials());
