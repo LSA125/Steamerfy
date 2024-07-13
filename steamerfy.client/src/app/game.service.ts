@@ -44,7 +44,7 @@ export class GameService {
 
   private initializeSignalRConnection() {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl("https://steamerfyserver.service.signalr.net/gameHub") // Change the URL to your SignalR hub endpoint
+      .withUrl("https://steamerfyserver20240712222009.azurewebsites.net/gameHub") // Change the URL to your SignalR hub endpoint
       .withAutomaticReconnect()
       .configureLogging(LogLevel.Information)
       .build();
