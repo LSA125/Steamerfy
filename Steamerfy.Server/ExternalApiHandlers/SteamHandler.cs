@@ -13,14 +13,11 @@ namespace Steamerfy.Server.ExternalApiHandlers
         private readonly HttpClient _httpClient;
         private readonly string? SteamApiKey = Environment.GetEnvironmentVariable("STEAM_API_KEY"); // Replace with your Steam API key
         private readonly ILogger<SteamHandler> _logger;
-        public SteamHandler(HttpClient httpClient, ILogger<SteamHandler> logger)
+        public SteamHandler(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _logger = logger;
-            _logger.LogInformation("SteamHandler created");
             if (SteamApiKey == null)
             {
-                _logger.LogError("STEAM_API_KEY environment variable not set");
                 throw new Exception("STEAM_API_KEY environment variable not set");
             }
             
