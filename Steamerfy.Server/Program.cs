@@ -6,7 +6,9 @@ using Steamerfy.Server.Services;
 using Steamerfy.Server.ExternalApiHandlers;
 using Steamerfy.Server.Factory;
 
+
 var builder = WebApplication.CreateBuilder(args);
+
 
 builder.Services.AddCors(options =>
 {
