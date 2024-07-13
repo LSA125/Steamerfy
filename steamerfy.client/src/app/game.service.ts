@@ -86,6 +86,7 @@ export class GameService {
     });
 
     this.hubConnection.on("PlayerJoined", (player: Player) => {
+      console.log('Player Joined: ', player);
       console.log('isUser: ', player.SteamId, this.userSteamId)
       player.isUser = player.SteamId == this.userSteamId;
       player.isHost = player.SteamId == this.hostSteamId;
@@ -109,6 +110,7 @@ export class GameService {
     });
 
     this.hubConnection.on("LobbyJoined", (gameState: GameState) => {
+      console.log('Lobby Joined: ', gameState);
       this.lobbyId = gameState.LobbyId;
       this._players = gameState.Players;
       this.hostSteamId = gameState.HostSteamId;
