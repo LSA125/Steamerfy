@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Steamerfy.Server.Models;
 using System.Linq;
 using Steamerfy.Server.Models.PlayerDataClasses;
+using Steamerfy.Server.Services;
 
 namespace Steamerfy.Server.ExternalApiHandlers
 {
@@ -11,14 +12,17 @@ namespace Steamerfy.Server.ExternalApiHandlers
     {
         private readonly HttpClient _httpClient;
         private readonly string? SteamApiKey = Environment.GetEnvironmentVariable("STEAM_API_KEY"); // Replace with your Steam API key
-
-        public SteamHandler(HttpClient httpClient)
+        private readonly ILogger<SteamHandler> _logger;
+        public SteamHandler(HttpClient httpClient, ILogger<SteamHandler> logger)
         {
             _httpClient = httpClient;
+            _logger = logger;
             if (SteamApiKey == null)
             {
+                _logger.LogError("STEAM_API_KEY environment variable not set");
                 throw new Exception("STEAM_API_KEY environment variable not set");
             }
+            
         }
         public async Task<Player?> GetPlayer(string steamId)
         {
