@@ -78,7 +78,7 @@ namespace Steamerfy.Server.HubsAndSockets
             }
 
             player.ConnectionId = Context.ConnectionId;
-            var profiles = lobby.Players.Select(p => new ProfileInfo(p.Username, p.ProfileUrl, p.AvatarUrl, p.SteamId)).ToList();
+            var profiles = lobby.Players.Select(p => new PlayerState(p.Username, p.ProfileUrl, p.AvatarUrl, p.SteamId,p.Score)).ToList();
             await Clients.Caller.SendAsync("LobbyJoined", new GameState(lobbyId, lobby.CurrentQuestion,profiles,_gameService.GetAnswerData(lobby),lobby.HostSteamId));
             if(lobby.Players.TrueForAll(p => p.SteamId != player.SteamId))
             {
