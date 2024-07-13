@@ -34,10 +34,7 @@ export class LobbyComponent {
 
   joinLobby(): void {
     this._gs.userSteamId = this.steamId;
-    this._gs.joinLobby(Number(this.lobbyId), this.steamId).then(() =>
-    {
-      this.router.navigate(['/game', this.lobbyId]);
-    }).catch((error) => {
+    this._gs.joinLobby(Number(this.lobbyId), this.steamId).catch((error) => {
       console.error('Error while joining lobby: ', error);
       this.snackBar.open('Error while joining lobby', 'Close', { duration: 3000 });
     })

@@ -112,6 +112,7 @@ export class GameService {
       this.lobbyId = gameState.LobbyId;
       this._players = gameState.Players;
       this.hostSteamId = gameState.HostSteamId;
+      this.router.navigate(['/game', this.lobbyId]);
       var tmp: Player | undefined = this._players.find(p => p.SteamId === this.userSteamId);
       if (tmp) {
         tmp.isUser = true;
