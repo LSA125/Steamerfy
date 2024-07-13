@@ -12,7 +12,6 @@ namespace Steamerfy.Server.ExternalApiHandlers
     {
         private readonly HttpClient _httpClient;
         private readonly string? SteamApiKey = Environment.GetEnvironmentVariable("STEAM_API_KEY"); // Replace with your Steam API key
-        private readonly ILogger<SteamHandler> _logger;
         public SteamHandler(HttpClient httpClient)
         {
             _httpClient = httpClient;
@@ -24,19 +23,16 @@ namespace Steamerfy.Server.ExternalApiHandlers
         }
         public async Task<Player?> GetPlayer(string steamId)
         {
-            _logger.LogInformation("GetPlayer called with steamId: {steamId}", steamId);
             ProfileInfo? profileInfo = await GetPlayerInfo(steamId);
             if (profileInfo == null)
             {
                 return null;
             }
-            _logger.LogInformation("GetPlayerInfo returned profileInfo: {profileInfo}", profileInfo);
             List<SteamItem>? gameInfo = await GetPlayerItems(steamId);
             if (gameInfo == null)
             {
                 return null;
             }
-            _logger.LogInformation("Successfully retrieved player info and player");
             return new Player(profileInfo, gameInfo, 0);
         }
         public async Task<ProfileInfo?> GetPlayerInfo(string steamId)
