@@ -44,7 +44,7 @@ export class GameService {
 
   private initializeSignalRConnection() {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl("https://steamerfyserver20240712222009.azurewebsites.net/gameHub") // Change the URL to your SignalR hub endpoint
+      .withUrl("https://steamerfyserver20240712222009.azurewebsites.net/gameHub")
       .withAutomaticReconnect()
       .configureLogging(LogLevel.Information)
       .build();
@@ -161,6 +161,7 @@ export class GameService {
 
   async joinLobby(lobbyId: number, steamId: string) {
     try {
+      console.log('Joining lobby', lobbyId,' with SteamId: ', steamId);
       await this.hubConnection.invoke('JoinLobby', lobbyId, steamId);
       this.userSteamId = steamId;
     } catch (error) {
