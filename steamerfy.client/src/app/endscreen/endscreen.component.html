@@ -6,7 +6,7 @@
   </div>
 
   <div class="h-75 d-flex flex-row align-items-end justify-content-center overflow-hidden">
-    <div *ngFor="let player of podiumPlayers; let i = index" [ngClass]="'podium podium-' + i">
+    <div *ngFor="let player of podiumPlayers; let i = index" [ngClass]="'podium podium-' + i" class="bg-secondary">
       <div [ngClass]="'medal medal-' + i"></div>
       <div class="player-avatar">
         <img [src]="player.AvatarUrl" [alt]="player.Username">

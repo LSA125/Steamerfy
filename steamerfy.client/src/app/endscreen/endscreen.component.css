@@ -23,7 +23,6 @@ body {
   margin: 0 1%;
   text-align: center;
   animation: rise 2s ease forwards;
-  background: #ff69b4;
   border-radius: 10px 10px 0 0;
   display: flex;
   flex-direction: column;

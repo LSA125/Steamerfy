@@ -18,7 +18,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins",
         builder => builder
-            .WithOrigins("https://wonderful-river-02d953a0f.5.azurestaticapps.net")
+            .WithOrigins("https://steamify.xyz")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials());
