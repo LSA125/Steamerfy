@@ -3,7 +3,7 @@
   <h1 class="text-center">Steamify</h1>
 
   <!-- Lobby Card -->
-  <div class="card mt-4 bg-body-primary rounded-5">
+  <div class="card mt-4 bg-secondary rounded-5">
     <div class="card-body">
       <!-- User ID Input -->
       <input type="text" class="form-control rounded-5 bg-light text-dark text-center fs-4 mb-2" style="height:80px;"
@@ -15,9 +15,9 @@
           <button class="btn btn-primary m-1 w-100" (click)="createLobby()">Create Game</button>
           <h4 class="text-dark-emphasis mt-1">Max Rounds: </h4>
           <div class="d-flex flex-column w-50 justify-content-center align-items-center">
-            <span class="h5 text-secondary mb-0">{{ MaxRounds }}</span>
+            <span class="h5 text-primary mb-0">{{ MaxRounds }}</span>
             <input type="range" class="w-75 custom-range"
-                   placeholder="Max Rounds" [(ngModel)]="MaxRounds" max="10" min="2" />
+                   placeholder="Max Rounds" [(ngModel)]="MaxRounds" max="15" min="2" />
           </div>
         </div>
         <h3 class="text-dark-emphasis m-0">OR</h3>

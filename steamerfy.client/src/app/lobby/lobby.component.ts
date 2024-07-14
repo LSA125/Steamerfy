@@ -9,7 +9,6 @@ import { GameService } from '../game.service';
   styleUrls: ['./lobby.component.css']
 })
 export class LobbyComponent {
-  username: string = "";
   public steamId: string = "";
   public lobbyId: string = "";
   public MaxRounds: number = 5;
@@ -21,6 +20,10 @@ export class LobbyComponent {
   }
 
   createLobby(): void {
+    if (this.steamId === "") {
+      this.snackBar.open('Please enter your Steam ID', 'Close', { duration: 3000 });
+      return;
+    }
     this._gs.createLobby(this.steamId, this.MaxRounds).then((lobbyId: number) => {
       console.log('Lobby created: ', Number(lobbyId));
       this.lobbyId = lobbyId.toString();
@@ -32,6 +35,10 @@ export class LobbyComponent {
   }
 
   joinLobby(): void {
+    if (this.steamId === "") {
+      this.snackBar.open('Please enter your Steam ID', 'Close', { duration: 3000 });
+      return;
+    }
     this._gs.userSteamId = this.steamId;
     this.router.navigate(['/game', this.lobbyId])
   }

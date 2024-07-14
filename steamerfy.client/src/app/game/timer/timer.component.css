@@ -15,7 +15,7 @@ svg {
 }
 
 .circle {
-  stroke: rgba(188, 0, 84, 1);
+  stroke: #0e1111;
   stroke-width: 14;
   fill: transparent;
   transition: stroke-dashoffset 1s linear;
@@ -32,7 +32,7 @@ svg {
   display: flex;
   justify-content: center;
   align-items: center;
-  color: rgba(188, 0, 84, 1);
+  color: #A9A9A9;
   font-size: 2em;
   font-weight: 700;
 }
