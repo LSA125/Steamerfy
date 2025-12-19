@@ -1,27 +1,20 @@
-version: '3.4'
-
 services:
   frontend:
     build:
-      context: .
-      dockerfile: Dockerfile.frontend
+      context: ./steamerfy.client
+      dockerfile: Dockerfile
     ports:
-      - "4200:443"
+      - "4200:80"
     depends_on:
       - backend
-    environment:
-      - APPDATA=/root/.aspnet
 
   backend:
     build:
       context: .
-      dockerfile: Dockerfile.backend
+      dockerfile: Steamerfy.Server/Dockerfile
     ports:
       - "5063:5063"
     environment:
-      - ASPNETCORE_URLS=https://+:5063
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=your-password
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/root/.aspnet/https/your-app.pfx
-      - APPDATA=/root/.aspnet
-    volumes:
-      - $APPDATA/ASP.NET/https:/root/.aspnet/https
+      - ASPNETCORE_URLS=http://+:5063
+      - STEAM_API_KEY=${STEAM_API_KEY}
+      - Azure__SignalR__ConnectionString=${AZURE_SIGNALR_CONNECTION_STRING}

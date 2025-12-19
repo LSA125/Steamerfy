@@ -1,39 +1,36 @@
-# Use the official .NET SDK image for building the application
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
-# Set the working directory
 WORKDIR /src
 
-# Copy the solution file and restore dependencies
-COPY *.sln .
+# Copy solution and project files
+COPY *.sln ./
 COPY Steamerfy.Server/*.csproj ./Steamerfy.Server/
-RUN dotnet restore
 
-# Copy the rest of the application code
-COPY . .
+# Restore dependencies
+RUN dotnet restore Steamerfy.Server/Steamerfy.Server.csproj
 
-# Publish the application
-RUN dotnet publish -c Release -o /app/publish
+# Copy the rest of the source code
+COPY Steamerfy.Server/. ./Steamerfy.Server/
 
-# Use the official .NET runtime image for running the application
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
+# Build and publish
+WORKDIR /src/Steamerfy.Server
+RUN dotnet publish -c Release -o /app/publish --no-restore
 
-# Set the working directory
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+
 WORKDIR /app
 
-# Copy the published application
+# Copy published application
 COPY --from=build /app/publish .
 
-# Set environment variables for SSL certificate and key paths
-ENV ASPNETCORE_URLS=https://+:5063
-ENV ASPNETCORE_Kestrel__Certificates__Default__Password=your-password
-ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/root/.aspnet/https/your-app.pfx
-
-# Copy the SSL certificate and key files
-COPY $APPDATA/ASP.NET/https/your-app.pfx /root/.aspnet/https/your-app.pfx
-
-# Expose port 5063 for SSL
+# Configure environment
+ENV ASPNETCORE_URLS=http://+:5063
 EXPOSE 5063
 
-# Start the application
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:5063/health || exit 1
+
 ENTRYPOINT ["dotnet", "Steamerfy.Server.dll"]

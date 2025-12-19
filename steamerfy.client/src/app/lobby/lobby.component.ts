@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GameService } from '../game.service';
@@ -25,11 +25,9 @@ export class LobbyComponent {
       return;
     }
     this._gs.createLobby(this.steamId, this.MaxRounds).then((lobbyId: number) => {
-      console.log('Lobby created: ', Number(lobbyId));
       this.lobbyId = lobbyId.toString();
       this.joinLobby();
-    }).catch((error) => {
-      console.error('Error while creating lobby: ', error);
+    }).catch(() => {
       this.snackBar.open('Error while creating lobby', 'Close', { duration: 3000 });
     });
   }

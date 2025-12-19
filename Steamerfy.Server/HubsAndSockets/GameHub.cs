@@ -33,7 +33,7 @@ namespace Steamerfy.Server.HubsAndSockets
                         }
                         else
                         {
-                            DeleteLobbyAndRemoveGroup(lobby);
+                            await DeleteLobbyAndRemoveGroup(lobby);
                             return;
                         }
                     }
@@ -72,7 +72,7 @@ namespace Steamerfy.Server.HubsAndSockets
                 await Clients.Caller.SendAsync("error","PlayerNotFound");
                 if(lobby.Players.Count == 0)
                 {
-                    DeleteLobbyAndRemoveGroup(lobby);
+                    await DeleteLobbyAndRemoveGroup(lobby);
                 }
                 return;
             }
@@ -187,13 +187,13 @@ namespace Steamerfy.Server.HubsAndSockets
             lobby.Players.Remove(player);
             if (lobby.Players.Count == 0)
             {
-                DeleteLobbyAndRemoveGroup(lobby);
+                await DeleteLobbyAndRemoveGroup(lobby);
             }
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, lobbyId.ToString(),CancellationToken.None);
             await Clients.Group(lobbyId.ToString()).SendAsync("PlayerLeft", player);
         }
 
-        private async void DeleteLobbyAndRemoveGroup(Lobby lobby)
+        private async Task DeleteLobbyAndRemoveGroup(Lobby lobby)
         {
             foreach(var player in lobby.Players)
             {

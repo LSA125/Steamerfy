@@ -1,6 +1,6 @@
-import { Component, Input, OnDestroy, Renderer2, ElementRef, HostListener } from '@angular/core';
+import { Component, Input, OnDestroy, Renderer2, ElementRef, HostListener, isDevMode } from '@angular/core';
 import { GameService } from '../../game.service';
-import { Subscription, delay } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-timer',
@@ -12,7 +12,7 @@ export class TimerComponent implements OnDestroy {
   public MaxTime: number = 0;
   public circumference: number = 0;
   public timerSize: number = 200;
-  private interval: any;
+  private interval: ReturnType<typeof setInterval> | null = null;
   private questionStartedSubscription: Subscription;
   private newGameStateSubscription: Subscription;
   private questionEndedSubscription: Subscription;
@@ -55,15 +55,16 @@ export class TimerComponent implements OnDestroy {
       this.questionEndedSubscription.unsubscribe();
     }
   }
+
   @HostListener('window:resize', ['$event'])
-  onResize(event: any) {
-    const width = event.target ? event.target.innerWidth : event;
+  onResize(event: Event | number) {
+    const width = typeof event === 'number' ? event : (event.target as Window)?.innerWidth ?? window.innerWidth;
     if (width < 768) {
-      this.timerSize = 165; // Smaller size for small screens
+      this.timerSize = 165;
     } else if (width < 1200) {
-      this.timerSize = 200; // Default size for larger screens
+      this.timerSize = 200;
     } else {
-      this.timerSize = 250; // Larger size for larger screens
+      this.timerSize = 250;
     }
     this.circumference = (this.timerSize / 2 - 12) * 2 * Math.PI;
   }
@@ -72,7 +73,6 @@ export class TimerComponent implements OnDestroy {
     const now = new Date();
     const circleElement = this.el.nativeElement.querySelector('.circle');
 
-    // Add the no-transition class
     this.renderer.addClass(circleElement, 'no-transition');
     this.MaxTime = Math.round((expireTime.getTime() - now.getTime()) / 1000);
     this.time = this.MaxTime + 1;
@@ -80,13 +80,11 @@ export class TimerComponent implements OnDestroy {
     setTimeout(() => {
       const circleElement = this.el.nativeElement.querySelector('.circle');
       this.renderer.removeClass(circleElement, 'no-transition');
-      console.log("MaxTime: " + this.MaxTime);
 
       if (this.MaxTime > 0) {
         this.startTimer();
       }
-    },50);
-
+    }, 50);
   }
 
   public startTimer() {
@@ -100,10 +98,11 @@ export class TimerComponent implements OnDestroy {
         this.time--;
       } else {
         this.time = 0;
-        clearInterval(this.interval);
+        if (this.interval) {
+          clearInterval(this.interval);
+        }
         this.interval = null;
         if (this.gs.isUserHost()) {
-          console.log("Ending question");
           this.gs.EndQuestion();
         }
       }

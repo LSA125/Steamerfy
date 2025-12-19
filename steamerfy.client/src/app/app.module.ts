@@ -1,5 +1,5 @@
-import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
@@ -12,6 +12,7 @@ import { SidebarComponent } from './game/sidebar/sidebar.component';
 import { TimerComponent } from './game/timer/timer.component';
 import { CommonModule } from '@angular/common';
 import { EndScreenComponent } from './endscreen/endscreen.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -23,13 +24,18 @@ import { EndScreenComponent } from './endscreen/endscreen.component';
     EndScreenComponent
   ],
   imports: [
-    BrowserModule, HttpClientModule,
-    AppRoutingModule, RouterModule,
-    FormsModule, CommonModule
+    BrowserModule,
+    AppRoutingModule,
+    RouterModule,
+    FormsModule,
+    CommonModule,
+    MatSnackBarModule
   ],
   providers: [
-    provideAnimationsAsync()
+    provideAnimationsAsync(),
+    provideHttpClient()
   ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+

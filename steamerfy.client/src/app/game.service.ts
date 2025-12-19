@@ -1,10 +1,11 @@
-import { EventEmitter, Injectable} from '@angular/core';
+import { EventEmitter, Injectable, isDevMode } from '@angular/core';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { Observable, Subject } from 'rxjs';
 import { Router } from '@angular/router';
 import { Player } from './models/GameHub/player';
 import { Question } from './models/GameHub/question';
 import { GameState } from './models/GameHub/GameState';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -42,20 +43,32 @@ export class GameService {
     this.initializeSignalRConnection();
   }
 
+  private log(message: string, ...args: unknown[]): void {
+    if (isDevMode()) {
+      console.log(message, ...args);
+    }
+  }
+
+  private logError(message: string, ...args: unknown[]): void {
+    if (isDevMode()) {
+      console.error(message, ...args);
+    }
+  }
+
   private initializeSignalRConnection() {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl("https://steamerfyserver20240712222009.azurewebsites.net/gameHub")
+      .withUrl(environment.signalRHubUrl)
       .withAutomaticReconnect()
-      .configureLogging(LogLevel.Information)
+      .configureLogging(isDevMode() ? LogLevel.Information : LogLevel.Warning)
       .build();
 
     this.hubConnection
       .start()
       .then(() => { this.connected = true; this.connected$.emit()})
-      .catch(err => console.log('Error while starting connection: ' + err));
+      .catch(err => this.logError('Error while starting connection: ' + err));
 
     this.hubConnection.on("InvalidLobby", () => {
-      console.log('Invalid lobby');
+      this.log('Invalid lobby');
       this.router.navigate(['/']);
     });
 
@@ -66,17 +79,17 @@ export class GameService {
       });
     });
 
-    this.hubConnection.on("QuestionStarted", (questionData: any) => {
-      var question: Question = new Question(questionData.QuestionText, questionData.QuestionURL,
-        questionData.ImageURLAndOption, questionData.Answer, new Date(questionData.ExpireTime));
+    this.hubConnection.on("QuestionStarted", (questionData: unknown) => {
+      const data = questionData as { QuestionText: string; QuestionURL: string; ImageURLAndOption: [string, string][]; Answer: number; ExpireTime: string };
+      const question: Question = new Question(data.QuestionText, data.QuestionURL,
+        data.ImageURLAndOption, data.Answer, new Date(data.ExpireTime));
       this.questionStartedSubject.next(question);
     });
 
-    this.hubConnection.on("QuestionEnded", (answerData: any[]) => {
+    this.hubConnection.on("QuestionEnded", (answerData: string[][]) => {
       this._players.forEach(player => {
         const playerAnswer = answerData.find(data => data[0] === player.SteamId);
         if (playerAnswer) {
-          console.log('Player Answer: ', playerAnswer[1], playerAnswer[2])
           player.Score = parseInt(playerAnswer[2], 10);
           player.SelectedAnswer = parseInt(playerAnswer[1], 10);
         }
@@ -86,8 +99,6 @@ export class GameService {
     });
 
     this.hubConnection.on("PlayerJoined", (player: Player) => {
-      console.log('Player Joined: ', player);
-      console.log('isUser: ', player.SteamId, this.userSteamId)
       player.isUser = player.SteamId == this.userSteamId;
       player.isHost = player.SteamId == this.hostSteamId;
       player.Score = 0;
@@ -110,18 +121,17 @@ export class GameService {
     });
 
     this.hubConnection.on("LobbyJoined", (gameState: GameState) => {
-      console.log('Lobby Joined: ', gameState);
       this.lobbyId = gameState.LobbyId;
       this._players = gameState.Players;
       this.hostSteamId = gameState.HostSteamId;
       this.router.navigate(['/game', this.lobbyId]);
-      var tmp: Player | undefined = this._players.find(p => p.SteamId === this.userSteamId);
-      if (tmp) {
-        tmp.isUser = true;
+      const currentUser = this._players.find(p => p.SteamId === this.userSteamId);
+      if (currentUser) {
+        currentUser.isUser = true;
       }
-      var tmp2: Player | undefined = this._players.find(p => p.SteamId === this.hostSteamId);
-      if (tmp2) {
-        tmp2.isHost = true;
+      const host = this._players.find(p => p.SteamId === this.hostSteamId);
+      if (host) {
+        host.isHost = true;
       }
       this.newGameStateSubject.next(gameState);
     });
@@ -135,37 +145,35 @@ export class GameService {
   }
 
   async StartQuestion(): Promise<void> {
-    console.log('Starting question')
-     this.hubConnection.invoke('StartQuestion', this.lobbyId, this.userSteamId);
+    await this.hubConnection.invoke('StartQuestion', this.lobbyId, this.userSteamId);
   }
 
   async EndQuestion(): Promise<void> {
     try {
       await this.hubConnection.invoke('EndQuestion', this.lobbyId, this.userSteamId);
     } catch (error) {
-      console.log('Error while ending question: ', error);
+      this.logError('Error while ending question: ', error);
       throw error;
     }
   }
 
-  // returns the id of the lobby created
   async createLobby(SteamId: string, MaxRounds: number): Promise<number> {
     try {
       await this.hubConnection.invoke('CreateLobby', SteamId, MaxRounds);
       this.userSteamId = SteamId;
       return this.lobbyId;
     } catch (error) {
-      console.error('Error while creating lobby: ', error);
+      this.logError('Error while creating lobby: ', error);
       throw error;
     }
   }
 
-  async joinLobby(lobbyId: number, steamId: string) {
+  async joinLobby(lobbyId: number, steamId: string): Promise<void> {
     try {
       await this.hubConnection.invoke('JoinLobby', lobbyId, steamId);
       this.userSteamId = steamId;
     } catch (error) {
-      console.error('Error while joining lobby: ', error);
+      this.logError('Error while joining lobby: ', error);
       throw error;
     }
   }
@@ -174,7 +182,7 @@ export class GameService {
     try {
       await this.hubConnection.invoke('AnswerQuestion', this.lobbyId, this.userSteamId, answerId);
     } catch (error) {
-      console.error('Error while answering question: ', error);
+      this.logError('Error while answering question: ', error);
       throw error;
     }
   }
@@ -183,7 +191,7 @@ export class GameService {
     try {
       await this.hubConnection.invoke('LeaveLobby', lobbyId);
     } catch (error) {
-      console.error('Error while leaving lobby: ', error);
+      this.logError('Error while leaving lobby: ', error);
       throw error;
     }
   }
@@ -191,6 +199,7 @@ export class GameService {
   public isUserHost(): boolean {
     return this.hostSteamId === this.userSteamId;
   }
+
   public get Players(): Player[] {
     return this._players;
   }

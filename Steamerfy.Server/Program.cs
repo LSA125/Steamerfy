@@ -18,7 +18,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins",
         builder => builder
-            .WithOrigins("https://steamify.xyz")
+            .WithOrigins(
+                "https://steamify.xyz",
+                "https://localhost:4200",
+                "http://localhost:4200"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials());

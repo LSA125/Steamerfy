@@ -2,7 +2,7 @@ import { Player } from '../models/GameHub/player';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Question } from '../models/GameHub/question';
 import { GameService } from './../game.service';
-import { Component } from '@angular/core';
+import { Component, isDevMode } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -10,16 +10,15 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   templateUrl: './game.component.html',
   styleUrl: './game.component.css'
 })
-export class GameComponent{
+export class GameComponent {
   public gs: GameService;
-  constructor(GameService: GameService, private snackBar: MatSnackBar, private ActivatedRoute: ActivatedRoute, private router:Router) {
+  constructor(GameService: GameService, private snackBar: MatSnackBar, private ActivatedRoute: ActivatedRoute, private router: Router) {
     this.gs = GameService
     if (this.gs.userSteamId === "") {
       this.router.navigate(['/']);
     }
     this.ActivatedRoute.params.subscribe((params: Params) => {
       if (!params['id']) { this.router.navigate(['/']); }
-      console.log('Lobby ID: ', params);
       if (!this.gs.connected) {
         this.gs.connected$.subscribe(() => {
           const lobbyId = params['id'];
@@ -29,7 +28,7 @@ export class GameComponent{
       }
       else {
         const lobbyId = params['id'];
-        if(this.gs.userSteamId === "" || this.gs.userSteamId === null || this.gs.userSteamId === undefined) { this.router.navigate(['/']); }
+        if (this.gs.userSteamId === "" || this.gs.userSteamId === null || this.gs.userSteamId === undefined) { this.router.navigate(['/']); }
         this.gs.joinLobby(Number(lobbyId), this.gs.userSteamId)
       }
     })
@@ -44,16 +43,14 @@ export class GameComponent{
 
   ngOnInit() {
     this.gs.questionStarted$.subscribe((question) => {
-      console.log('Question Started: ', question);
-      this.canSkip = true; 
+      this.canSkip = true;
       this.question = question || new Question("", "https://www.pngmart.com/files/22/White-Background-PNG.png", [], -1, new Date());
       this.showAnswers = false;
       this.disableButtons = false;
       this.selectedAnswer = -1;
     });
 
-    this.gs.questionEnded$.subscribe((answerData) => {
-      console.log('Question Ended: ', answerData);
+    this.gs.questionEnded$.subscribe(() => {
       this.showAnswers = true;
       this.canSkip = false;
     });
@@ -83,8 +80,8 @@ export class GameComponent{
       this.router.navigate(['/end']);
     })
   }
+
   onAnswer(i: number) {
-    console.log('Answered: ', i);
     this.disableButtons = true;
     this.selectedAnswer = i;
     this.gs.answerQuestion(i);
