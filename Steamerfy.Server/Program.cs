@@ -5,6 +5,7 @@ using Steamerfy.Server.HubsAndSockets;
 using Steamerfy.Server.Services;
 using Steamerfy.Server.ExternalApiHandlers;
 using Steamerfy.Server.Factory;
+using Microsoft.Azure.SignalR;
 
 
 var builder = WebApplication.CreateBuilder(args);
