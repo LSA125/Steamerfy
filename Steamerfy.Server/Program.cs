@@ -21,6 +21,8 @@ builder.Services.AddCors(options =>
         builder => builder
             .WithOrigins(
                 "https://steamify.xyz",
+                "https://www.steamify.xyz",
+                "https://steamerfyserver20251220133732-ewfyana8hjhffjdx.canadacentral-01.azurewebsites.net",
                 "https://localhost:4200",
                 "http://localhost:4200"
             )
