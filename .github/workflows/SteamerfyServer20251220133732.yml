@@ -43,14 +43,9 @@ jobs:
       with:
         name: webapp
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-    - name: Azure Login
-      uses: azure/login@v2
-      with:
-        client-id: ${{ vars.SteamerfyServer20251220133732_CLIENT_ID_F8F9 }}
-        tenant-id: ${{ vars.SteamerfyServer20251220133732_TENANT_ID_F8F9 }}
-        subscription-id: ${{ vars.SteamerfyServer20251220133732_SUBSCRIPTION_ID_F8F9 }}
     - name: Deploy to Azure WebApp
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
