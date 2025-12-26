@@ -124,7 +124,7 @@ docker-compose up
 | Variable | Description |
 |----------|-------------|
 | `Azure:SignalR:ConnectionString` | Azure SignalR Service connection string |
-| `Steam:ApiKey` | Steam Web API key (optional, for additional features) |
+| `Steam:ApiKey` | Steam Web API key for fetching player game libraries |
 
 ### Frontend Environment
 
@@ -134,7 +134,7 @@ Edit `steamerfy.client/src/environments/environment.prod.ts` to configure produc
 
 ## License
 
-This project is for educational and portfolio purposes.
+This project is licensed under the [MIT License](LICENSE).
 
 ---
 
