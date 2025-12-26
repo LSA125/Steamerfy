@@ -1,26 +1,32 @@
-<![CDATA[# Steamify
+# Steamify
 
-🎮 **[Play Now at steamify.xyz](https://steamify.xyz)**
+**[Play Now at steamify.xyz](https://steamify.xyz/)**
 
 > [!WARNING]
-> **Azure Free Tier Notice**: The backend is hosted on Azure's free tier, which may take **30-60 seconds to wake up** on first load if it has been idle. Please be patient during initial connection!
+> **Azure Free Tier Notice**: The backend is hosted on Azure's free tier, which may take 30-60 seconds to wake up on first load if it has been idle. Please be patient during initial connection.
+
+---
 
 ## Overview
 
-Steamify is a **real-time multiplayer trivia game** that generates quiz questions from players' Steam libraries. Compete with friends to see who knows their shared gaming experiences best! The game uses SignalR for low-latency WebSocket communication, enabling a seamless live quiz experience.
+Steamify is a real-time multiplayer trivia game that generates quiz questions from players' Steam libraries. Compete with friends to see who knows their shared gaming experiences best. The game uses SignalR for low-latency WebSocket communication, enabling a seamless live quiz experience.
 
 ![Steamify Screenshot](image.png)
 
-## ✨ Features
+---
 
-- **Steam Integration** — Fetches game data from players' Steam profiles to generate personalized questions
-- **Real-time Multiplayer** — Uses SignalR WebSockets for instant synchronization across all players
-- **Dynamic Lobbies** — Create private games or join public matchmaking
-- **Live Scoring** — See answers and scores update in real-time as players respond
-- **Turn Timer** — Visual countdown with bonus time mechanics for fast answers
-- **Responsive Design** — Works on desktop and mobile browsers
+## Features
 
-## 🏗️ Architecture
+- **Steam Integration** - Fetches game data from players' Steam profiles to generate personalized questions
+- **Real-time Multiplayer** - Uses SignalR WebSockets for instant synchronization across all players
+- **Dynamic Lobbies** - Create private games or join public matchmaking
+- **Live Scoring** - See answers and scores update in real-time as players respond
+- **Turn Timer** - Visual countdown with bonus time mechanics for fast answers
+- **Responsive Design** - Works on desktop and mobile browsers
+
+---
+
+## Architecture
 
 | Component | Technology | Description |
 |-----------|------------|-------------|
@@ -29,7 +35,9 @@ Steamify is a **real-time multiplayer trivia game** that generates quiz question
 | **Real-time** | Azure SignalR Service | Managed WebSocket infrastructure |
 | **Hosting** | Azure Static Web Apps + Azure App Service | Serverless frontend, scalable backend |
 
-## 📁 Project Structure
+---
+
+## Project Structure
 
 ```
 Steamerfy/
@@ -52,7 +60,9 @@ Steamerfy/
 └── .github/workflows/         # CI/CD pipelines
 ```
 
-## 🚀 Getting Started
+---
+
+## Getting Started
 
 ### Prerequisites
 
@@ -63,9 +73,10 @@ Steamerfy/
 ### Running Locally
 
 **Option 1: Visual Studio (Recommended)**
+
 1. Clone the repository
 2. Open `Steamerfy.sln` in Visual Studio
-3. Press **F5** to run — both frontend and backend will start together
+3. Press **F5** to run - both frontend and backend will start together
 
 **Option 2: Command Line**
 
@@ -94,7 +105,9 @@ cd Steamerfy.Server
 dotnet publish -c Release
 ```
 
-## 🐳 Docker
+---
+
+## Docker
 
 Docker support is available for containerized deployment:
 
@@ -102,7 +115,9 @@ Docker support is available for containerized deployment:
 docker-compose up
 ```
 
-## 🔧 Configuration
+---
+
+## Configuration
 
 ### Environment Variables
 
@@ -115,11 +130,12 @@ docker-compose up
 
 Edit `steamerfy.client/src/environments/environment.prod.ts` to configure production settings.
 
-## 📄 License
+---
+
+## License
 
 This project is for educational and portfolio purposes.
 
 ---
 
-Built using Angular & .NET
-]]>
+Built with Angular and .NET
